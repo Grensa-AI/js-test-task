@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -22,14 +23,42 @@ const Text = styled.p`
   line-height: 1.5;
 `;
 
+
 export const Summary = () => {
+  const [messagesFromTG, setMessages] = useState([]);
+
+  useEffect(() => {
+    function getMessagesFromTelegram() {
+      const messageNodes = document.querySelectorAll(".text-content");
+
+      const messages = Array.from(messageNodes).map((node) => {
+        const clone = node.cloneNode(true);
+        const meta = clone.querySelector(".MessageMeta");
+        if (meta) meta.remove();
+        return clone.innerText.trim();
+      });
+
+      return messages;
+    }
+
+    const observer = new MutationObserver(() => {
+      const messages = getMessagesFromTelegram();
+      if (messages.length > 0) {
+        console.log("📥 Сообщения найдены:", messages);
+        setMessages(messages);
+        observer.disconnect(); // отключаем, чтобы не перезапускалось
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
   return (
     <Container>
       <SummaryTitle>Резюме</SummaryTitle>
       <Text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris.
+        текст резюме
       </Text>
     </Container>
   );
