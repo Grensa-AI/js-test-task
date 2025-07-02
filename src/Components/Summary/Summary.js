@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Spinner, Button, ErrorMessage } from "../UI";
 
 const Container = styled.div`
   padding: 16px;
@@ -13,6 +14,9 @@ const SummaryTitle = styled.h3`
   color: #111827;
   font-size: 16px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const Text = styled.p`
@@ -22,15 +26,55 @@ const Text = styled.p`
   line-height: 1.5;
 `;
 
-export const Summary = () => {
-  return (
-    <Container>
-      <SummaryTitle>Резюме</SummaryTitle>
-      <Text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris.
-      </Text>
-    </Container>
-  );
+const RefreshButton = styled(Button)`
+  margin-top: 8px;
+`;
+
+export const Summary = ({ summary, isLoading, error, onRefresh }) => {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <>
+          <SummaryTitle>
+            Resume generation
+            <Spinner />
+          </SummaryTitle>
+          <Text>Analyzing chat messages...</Text>
+        </>
+      );
+    }
+
+    if (error) {
+      return (
+        <>
+          <SummaryTitle>Error</SummaryTitle>
+          <ErrorMessage>{error}</ErrorMessage>
+          <RefreshButton onClick={onRefresh}>Try again</RefreshButton>
+        </>
+      );
+    }
+
+    if (summary) {
+      return (
+        <>
+          <SummaryTitle>Chat Summary</SummaryTitle>
+          <Text>{summary}</Text>
+          <RefreshButton onClick={onRefresh}>Update Summary</RefreshButton>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <SummaryTitle>Chat Summary</SummaryTitle>
+        <Text>
+          Open a chat in Telegram Web and click on the extension icon to
+          generate a resume.
+        </Text>
+        <RefreshButton onClick={onRefresh}>Create Summary</RefreshButton>
+      </>
+    );
+  };
+
+  return <Container>{renderContent()}</Container>;
 };
