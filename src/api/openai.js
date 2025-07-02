@@ -1,6 +1,6 @@
 export async function getSummary(messages, apiKey) {
   console.log("Сообщения (заглушка):", messages);
-  await new Promise((res) => setTimeout(res, 500)); // имитируем задержку
+  await new Promise((res) => setTimeout(res, 3000)); // имитируем задержку
 
   return "Это пример сгенерированного резюме. Здесь будет краткий пересказ переписки.";
 }

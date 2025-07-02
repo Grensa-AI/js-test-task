@@ -27,6 +27,8 @@ const Text = styled.p`
 
 export const Summary = () => {
   const [messages, setMessages] = useState([]);
+  const [summaryText, setSummaryText] = useState("Резюме появится после загрузки сообщений");
+  const [isLoading, setIsLoading] = useState(false);
 
   const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
 
@@ -61,18 +63,28 @@ export const Summary = () => {
   useEffect(() => {
     if (messages.length === 0) return;
 
-    getSummary(messages, apiKey).then((summaryText) => {
-      if (summaryText) {
-        console.log("📋 Сгенерированное резюме:", summaryText);
-      }
-    });
+    setIsLoading(true);
+    getSummary(messages, apiKey)
+      .then((summaryText) => {
+        if (summaryText) {
+          setSummaryText(summaryText)
+          console.log("📋 Сгенерированное резюме:", summaryText);
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка при генерации резюме:", error);
+        setSummaryText("Произошла ошибка при генерации резюме.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [messages, apiKey]);
 
   return (
     <Container>
       <SummaryTitle>Резюме</SummaryTitle>
       <Text>
-        текст резюме
+        {isLoading ? "🔄 Генерация резюме..." : summaryText}
       </Text>
     </Container>
   );
