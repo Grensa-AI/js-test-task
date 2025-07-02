@@ -9,6 +9,12 @@ const Container = styled.div`
   border-left: 4px solid #6366f1;
 `;
 
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+`;
+
 const SummaryTitle = styled.h3`
   margin: 0 0 12px 0;
   color: #111827;
@@ -16,6 +22,15 @@ const SummaryTitle = styled.h3`
   font-weight: 600;
   display: flex;
   align-items: center;
+  gap: 8px;
+  height: 24px;
+`;
+
+const TextContainer = styled.div`
+  flex: 1;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 `;
 
@@ -26,53 +41,132 @@ const Text = styled.p`
   line-height: 1.5;
 `;
 
-const RefreshButton = styled(Button)`
-  margin-top: 8px;
+const HintBox = styled.div`
+  background: #fef3cd;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 12px;
+  color: #92400e;
+  line-height: 1.4;
 `;
 
-export const Summary = ({ summary, isLoading, error, onRefresh }) => {
+const InstructionBox = styled.div`
+  background: #e0f2fe;
+  border: 1px solid #81d4fa;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: #0277bd;
+  line-height: 1.4;
+`;
+
+const ButtonContainer = styled.div`
+  margin-top: auto;
+  padding-top: 12px;
+`;
+
+const RefreshButton = styled(Button)`
+  width: 100%;
+  height: 40px;
+`;
+
+export const Summary = ({
+  summary,
+  isLoading,
+  error,
+  onRefresh,
+  isConfigured = true,
+}) => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <>
+        <ContentWrapper>
           <SummaryTitle>
-            Resume generation
-            <Spinner />
+            Генерация резюме <Spinner />
           </SummaryTitle>
-          <Text>Analyzing chat messages...</Text>
-        </>
+          <TextContainer>
+            <Text>Анализируем сообщения чата...</Text>
+            <HintBox>
+              ⏳ Получаем транскрипции аудио и обрабатываем видимые сообщения
+            </HintBox>
+          </TextContainer>
+          <ButtonContainer>
+            <RefreshButton disabled>Генерация...</RefreshButton>
+          </ButtonContainer>
+        </ContentWrapper>
       );
     }
 
     if (error) {
       return (
-        <>
-          <SummaryTitle>Error</SummaryTitle>
-          <ErrorMessage>{error}</ErrorMessage>
-          <RefreshButton onClick={onRefresh}>Try again</RefreshButton>
-        </>
+        <ContentWrapper>
+          <SummaryTitle>⚠️ Ошибка</SummaryTitle>
+          <TextContainer>
+            <ErrorMessage>{error}</ErrorMessage>
+            <HintBox>
+              <strong>💡 Попробуйте:</strong> Прокрутите чат до места с
+              текстовыми сообщениями и нажмите "Попробовать снова"
+            </HintBox>
+          </TextContainer>
+          <ButtonContainer>
+            <RefreshButton onClick={onRefresh}>Попробовать снова</RefreshButton>
+          </ButtonContainer>
+        </ContentWrapper>
       );
     }
 
     if (summary) {
       return (
-        <>
-          <SummaryTitle>Chat Summary</SummaryTitle>
-          <Text>{summary}</Text>
-          <RefreshButton onClick={onRefresh}>Update Summary</RefreshButton>
-        </>
+        <ContentWrapper>
+          <SummaryTitle>📝 Резюме чата</SummaryTitle>
+          <TextContainer>
+            <Text>{summary}</Text>
+            <HintBox>
+              <strong>💡 Подсказка:</strong> Расширение анализирует только
+              сообщения, видимые на экране. Для анализа других частей чата
+              прокрутите к нужному месту и нажмите "Обновить резюме".
+            </HintBox>
+          </TextContainer>
+          <ButtonContainer>
+            <RefreshButton onClick={onRefresh}>Обновить резюме</RefreshButton>
+          </ButtonContainer>
+        </ContentWrapper>
       );
     }
 
     return (
-      <>
-        <SummaryTitle>Chat Summary</SummaryTitle>
-        <Text>
-          Open a chat in Telegram Web and click on the extension icon to
-          generate a resume.
-        </Text>
-        <RefreshButton onClick={onRefresh}>Create Summary</RefreshButton>
-      </>
+      <ContentWrapper>
+        <SummaryTitle>📋 Анализатор чата</SummaryTitle>
+        <TextContainer>
+          <Text>Создайте умное резюме сообщений Telegram</Text>
+
+          <InstructionBox>
+            <strong>📖 Как использовать:</strong>
+            <br />
+            <strong>1.</strong> Прокрутите чат до интересующих сообщений
+            <br />
+            <strong>2.</strong> Нажмите кнопку "Создать резюме"
+            <br />
+            <strong>3.</strong> Получите анализ видимых сообщений
+            <br />
+            <strong>4.</strong> При необходимости повторите для других частей
+          </InstructionBox>
+
+          {!isConfigured && (
+            <HintBox>
+              ⚙️ <strong>Внимание:</strong> OpenAI API ключ не найден в
+              настройках. Добавьте API ключ для работы расширения.
+            </HintBox>
+          )}
+        </TextContainer>
+
+        <ButtonContainer>
+          <RefreshButton onClick={onRefresh}>📋 Создать резюме</RefreshButton>
+        </ButtonContainer>
+      </ContentWrapper>
     );
   };
 
