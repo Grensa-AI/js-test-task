@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { getSummary } from "../../api/openAi";
 
 const Container = styled.div`
   padding: 16px;
@@ -25,7 +26,9 @@ const Text = styled.p`
 
 
 export const Summary = () => {
-  const [messagesFromTG, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
+
+  const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
 
   useEffect(() => {
     function getMessagesFromTelegram() {
@@ -44,7 +47,7 @@ export const Summary = () => {
     const observer = new MutationObserver(() => {
       const messages = getMessagesFromTelegram();
       if (messages.length > 0) {
-        console.log("📥 Сообщения найдены:", messages);
+        console.log("Сообщения найдены:", messages);
         setMessages(messages);
         observer.disconnect(); // отключаем, чтобы не перезапускалось
       }
@@ -54,6 +57,17 @@ export const Summary = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    getSummary(messages, apiKey).then((summaryText) => {
+      if (summaryText) {
+        console.log("📋 Сгенерированное резюме:", summaryText);
+      }
+    });
+  }, [messages, apiKey]);
+
   return (
     <Container>
       <SummaryTitle>Резюме</SummaryTitle>
