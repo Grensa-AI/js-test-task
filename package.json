@@ -3,18 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "github-markdown-css": "^5.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
+    "raw-loader": "^4.0.2",
     "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "craco start",
     "build": "craco build",
-    "test": "craco test"
+    "test": "craco test",
+    "postbuild": "copy public\\manifest.json build\\manifest.json"
   },
   "browserslist": {
     "production": [
