@@ -24,7 +24,26 @@ const Text = styled.p`
 `;
 
 
-export const Summary = ({isLoading, summary}) => {
+const Button = styled.button`
+  background: #6366f1;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+
+  &:hover {
+    background: #4f46e5;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const Summary = ({ isLoading, summary, onGenerateSummary }) => {
   
   return (
     <Container>
@@ -32,6 +51,7 @@ export const Summary = ({isLoading, summary}) => {
       <Text>
         {isLoading ? "🔄 Генерация резюме..." : summary}
       </Text>
+      <Button onClick={onGenerateSummary}>Сгенерировать резюме</Button>
     </Container>
   );
 };
