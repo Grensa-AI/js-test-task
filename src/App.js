@@ -25,11 +25,11 @@ const Button = styled.button`
 `;
 
 const Input = styled.input`
-  width: calc(100% - 12px);
-  padding: 6px;
-  margin-bottom: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
+    width: calc(100% - 12px);
+    padding: 6px;
+    margin-bottom: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
 `;
 
 export default function App() {
@@ -38,7 +38,6 @@ export default function App() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // при старте читаем сохранённый ключ
     useEffect(() => {
         chrome.storage.local.get('openaiKey', ({ openaiKey }) => {
             if (openaiKey) setApiKey(openaiKey);
@@ -55,7 +54,7 @@ export default function App() {
         setError('');
         setLoading(true);
 
-        // development-мок
+        // Мок-режим для локальной разработки
         if (process.env.NODE_ENV === 'development') {
             await new Promise(r => setTimeout(r, 500));
             setSummary('Это тестовое резюме чата (mock).');
@@ -67,36 +66,33 @@ export default function App() {
             const chat = extractChat();
             if (!chat) throw new Error('Не найдено сообщений в чате');
 
-            const res = await fetch(
-                'https://api.openai.com/v1/chat/completions',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${apiKey.trim()}`,
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'Ты ассистент, который резюмирует чат.',
-                            },
-                            {
-                                role: 'user',
-                                content: `Резюме переписки:\n\n${chat}`,
-                            },
-                        ],
-                        max_tokens: 200,
-                    }),
-                }
-            );
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey.trim()}`,
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'system', content: 'Ты ассистент, который резюмирует чат.' },
+                        { role: 'user', content: `Резюме переписки:\n\n${chat}` },
+                    ],
+                    max_tokens: 200,
+                }),
+            });
+
             const { choices, error: apiError } = await res.json();
             if (apiError) throw new Error(apiError.message);
+
             setSummary(choices[0].message.content.trim());
         } catch (e) {
             console.error(e);
-            setError(e.message);
+            if (e.message.toLowerCase().includes('quota')) {
+                setError('Квота исчерпана. Пополните счёт в личном кабинете OpenAI.');
+            } else {
+                setError(e.message);
+            }
         } finally {
             setLoading(false);
         }
