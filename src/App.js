@@ -1,28 +1,24 @@
-import React from "react";
-import styled from "styled-components";
-import { Title } from "./Components/Title/Title";
-import { Summary } from "./Components/Summary/Summary";
+import React, { useState } from 'react';
+import './styles/extension-window.css';
+import Title from './Components/Title/Title';
+import Summary from './Components/Summary/Summary';
 
-const AppContainer = styled.div`
-  width: 400px;
-  height: auto;
-  max-height: 500px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  overflow-y: auto;
-  color: #111827;
-`;
+const App = () => {
+  const [summary, setSummary] = useState('');
 
-export const App = () => {
+  const generateSummary = () => {
+    setSummary('Здесь будет резюме чата после интеграции с OpenAI API');
+  };
+
   return (
-    <AppContainer>
+    <div className="grensa-extension-container">
       <Title />
-      <Summary />
-    </AppContainer>
+      <Summary summary={summary} />
+      <button onClick={generateSummary} className="grensa-generate-button">
+        Обновить резюме
+      </button>
+    </div>
   );
 };
+
+export default App;
