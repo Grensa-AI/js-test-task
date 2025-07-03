@@ -1,0 +1,146 @@
+
+
+.options-fullscreen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 99999;
+  overflow-y: auto;
+}
+
+.options-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 32px;
+  margin-bottom: 24px;
+}
+
+.options-tab {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  border-radius: 8px 8px 0 0;
+  color: #fff;
+  font-size: 18px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.options-tab.active {
+  background: #fff;
+  color: #764ba2;
+  font-weight: bold;
+}
+
+.options-content {
+  background: rgba(255,255,255,0.10);
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 32px 32px 24px 32px;
+  min-width: 400px;
+  max-width: 90vw;
+  margin-bottom: 32px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.options-block {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.options-block label {
+  margin-bottom: 8px;
+  font-size: 17px;
+  color: #fff;
+  font-weight: 500;
+}
+
+.options-input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #cfcfff;
+  font-size: 16px;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.options-input:focus {
+  border-color: #764ba2;
+}
+
+.options-save-btn {
+  background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #e0e6f6;
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-top: 16px;
+}
+
+.options-save-btn:hover {
+  background: linear-gradient(90deg, #8f6aff 0%, #6a8cff 100%);
+  box-shadow: 0 4px 16px #d0d8f6;
+}
+
+.options-save-btn:disabled {
+  background: #e0e6f6;
+  color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.options-success {
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  color: #51cf66;
+  font-size: 14px;
+}
+
+.options-error {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+.options-hint {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.options-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.options-default-prompt {
+  font-size: 14px;
+  opacity: 0.9;
+} 
