@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Title } from "./Components/Title/Title";
-import { Summary } from "./Components/Summary/Summary";
+import { SummaryContainer } from "./Components/Summary/SummaryContainer";
 
 const AppContainer = styled.div`
   width: 400px;
@@ -22,7 +22,7 @@ export const App = () => {
   return (
     <AppContainer>
       <Title />
-      <Summary />
+      <SummaryContainer />
     </AppContainer>
   );
 };
