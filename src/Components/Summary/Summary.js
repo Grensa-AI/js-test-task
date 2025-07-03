@@ -9,12 +9,6 @@ const Container = styled.div`
   border-left: 4px solid #6366f1;
 `;
 
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 160px;
-`;
-
 const SummaryTitle = styled.h3`
   margin: 0 0 12px 0;
   color: #111827;
@@ -23,15 +17,6 @@ const SummaryTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 24px;
-`;
-
-const TextContainer = styled.div`
-  flex: 1;
-  min-height: 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 `;
 
 const Text = styled.p`
@@ -39,6 +24,8 @@ const Text = styled.p`
   color: #6b7280;
   font-size: 14px;
   line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 `;
 
 const HintBox = styled.div`
@@ -63,14 +50,9 @@ const InstructionBox = styled.div`
   line-height: 1.4;
 `;
 
-const ButtonContainer = styled.div`
-  margin-top: auto;
-  padding-top: 12px;
-`;
-
 const RefreshButton = styled(Button)`
+  margin-top: 12px;
   width: 100%;
-  height: 40px;
 `;
 
 export const Summary = ({
@@ -79,94 +61,113 @@ export const Summary = ({
   error,
   onRefresh,
   isConfigured = true,
+  transcriptionInfo = null,
 }) => {
+  const renderTranscriptionStatus = () => {
+    if (!transcriptionInfo || transcriptionInfo.audioFound === 0) {
+      return null;
+    }
+
+    const { audioFound, audioProcessed, audioFailed, hasIssues } =
+      transcriptionInfo;
+
+    if (hasIssues && audioFailed > 0) {
+      return (
+        <HintBox>
+          🎵 Найдено {audioFound} аудио сообщений. Обработано: {audioProcessed},
+          не удалось: {audioFailed}
+        </HintBox>
+      );
+    }
+
+    if (audioProcessed > 0) {
+      return (
+        <HintBox>
+          ✅ Успешно обработано {audioProcessed} аудио сообщений
+        </HintBox>
+      );
+    }
+
+    return null;
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return (
-        <ContentWrapper>
+        <>
           <SummaryTitle>
             Генерация резюме <Spinner />
           </SummaryTitle>
-          <TextContainer>
-            <Text>Анализируем сообщения чата...</Text>
-            <HintBox>
-              ⏳ Получаем транскрипции аудио и обрабатываем видимые сообщения
-            </HintBox>
-          </TextContainer>
-          <ButtonContainer>
-            <RefreshButton disabled>Генерация...</RefreshButton>
-          </ButtonContainer>
-        </ContentWrapper>
+          <Text>Анализируем сообщения чата...</Text>
+          <HintBox>
+            ⏳ Получаем транскрипции аудио и обрабатываем видимые сообщения
+          </HintBox>
+        </>
       );
     }
 
     if (error) {
       return (
-        <ContentWrapper>
+        <>
           <SummaryTitle>⚠️ Ошибка</SummaryTitle>
-          <TextContainer>
-            <ErrorMessage>{error}</ErrorMessage>
-            <HintBox>
-              <strong>💡 Попробуйте:</strong> Прокрутите чат до места с
-              текстовыми сообщениями и нажмите "Попробовать снова"
-            </HintBox>
-          </TextContainer>
-          <ButtonContainer>
-            <RefreshButton onClick={onRefresh}>Попробовать снова</RefreshButton>
-          </ButtonContainer>
-        </ContentWrapper>
+          <ErrorMessage>{error}</ErrorMessage>
+          <HintBox>
+            <strong>💡 Возможные решения:</strong>
+            <br />
+            • Обновите ключ API
+            <br />
+            • Прокрутите чат до места с текстом
+            <br />• Проверьте подключение к интернету
+          </HintBox>
+          <RefreshButton onClick={onRefresh}>Попробовать снова</RefreshButton>
+        </>
       );
     }
 
     if (summary) {
       return (
-        <ContentWrapper>
+        <>
           <SummaryTitle>📝 Резюме чата</SummaryTitle>
-          <TextContainer>
-            <Text>{summary}</Text>
-            <HintBox>
-              <strong>💡 Подсказка:</strong> Расширение анализирует только
-              сообщения, видимые на экране. Для анализа других частей чата
-              прокрутите к нужному месту и нажмите "Обновить резюме".
-            </HintBox>
-          </TextContainer>
-          <ButtonContainer>
-            <RefreshButton onClick={onRefresh}>Обновить резюме</RefreshButton>
-          </ButtonContainer>
-        </ContentWrapper>
+          <Text>{summary}</Text>
+
+          {renderTranscriptionStatus()}
+
+          <HintBox>
+            <strong>💡 Подсказка:</strong> Расширение анализирует только
+            сообщения, видимые на экране. Для анализа других частей чата
+            прокрутите к нужному месту и нажмите "Обновить резюме".
+          </HintBox>
+          <RefreshButton onClick={onRefresh}>Обновить резюме</RefreshButton>
+        </>
       );
     }
 
     return (
-      <ContentWrapper>
+      <>
         <SummaryTitle>📋 Анализатор чата</SummaryTitle>
-        <TextContainer>
-          <Text>Создайте умное резюме сообщений Telegram</Text>
+        <Text>Создайте умное резюме сообщений Telegram</Text>
 
-          <InstructionBox>
-            <strong>📖 Как использовать:</strong>
-            <br />
-            <strong>1.</strong> Прокрутите чат до интересующих сообщений
-            <br />
-            <strong>2.</strong> Нажмите кнопку "Создать резюме"
-            <br />
-            <strong>3.</strong> Получите анализ видимых сообщений
-            <br />
-            <strong>4.</strong> При необходимости повторите для других частей
-          </InstructionBox>
+        <InstructionBox>
+          <strong>📖 Как использовать:</strong>
+          <br />
+          <strong>1.</strong> Прокрутите чат до интересующих сообщений
+          <br />
+          <strong>2.</strong> Нажмите кнопку "Создать резюме"
+          <br />
+          <strong>3.</strong> Получите анализ видимых сообщений
+          <br />
+          <strong>4.</strong> При необходимости повторите для других частей
+        </InstructionBox>
 
-          {!isConfigured && (
-            <HintBox>
-              ⚙️ <strong>Внимание:</strong> OpenAI API ключ не найден в
-              настройках. Добавьте API ключ для работы расширения.
-            </HintBox>
-          )}
-        </TextContainer>
+        {!isConfigured && (
+          <HintBox>
+            ⚙️ <strong>Внимание:</strong> OpenAI API ключ не найден в
+            настройках. Добавьте API ключ для работы расширения.
+          </HintBox>
+        )}
 
-        <ButtonContainer>
-          <RefreshButton onClick={onRefresh}>📋 Создать резюме</RefreshButton>
-        </ButtonContainer>
-      </ContentWrapper>
+        <RefreshButton onClick={onRefresh}>📋 Создать резюме</RefreshButton>
+      </>
     );
   };
 
