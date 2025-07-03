@@ -1,4 +1,6 @@
 // Фоновый скрипт для работы с OpenAI API
+// Этот файл отвечает за всю логику работы с API провайдерами (OpenAI, OpenRouter, Gemini)
+// и управляет настройками расширения
 
 class OpenAIService {
     constructor() {
@@ -12,14 +14,17 @@ class OpenAIService {
   
     init() {
       console.log('Grensa.AI: Background script запущен');
+      // Загружаем сохраненные API ключи из сессионного хранилища
       chrome.storage.session.get(['apiKeys'], (session) => {
         this.apiKeys = session.apiKeys || {};
       });
+      // Слушаем изменения в хранилище ключей
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area === 'session' && changes.apiKeys) {
           this.apiKeys = changes.apiKeys.newValue || {};
         }
       });
+      // Основной обработчик сообщений от content script и popup
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === 'getProviderSettings') {
           chrome.storage.local.get(['models', 'activeProvider'], (local) => {
@@ -188,6 +193,168 @@ class OpenAIService {
       } catch (error) {
         console.error('Grensa.AI: Ошибка тестирования API ключа:', error);
         return { valid: false, details: error.message };
+      }
+    }
+
+    // Основной метод для генерации резюме чата
+    // Принимает массив сообщений и ID чата, возвращает структурированное резюме
+    async generateSummary(messages, chatId) {
+      if (!this.apiKey) {
+        return { 
+          error: 'API ключ не настроен. Перейдите в настройки расширения.',
+          needsApiKey: true 
+        };
+      }
+  
+      if (!messages || messages.length === 0) {
+        return { error: 'Нет сообщений для анализа' };
+      }
+  
+      this.updateBaseUrl();
+  
+      try {
+        let response, summary = '';
+        const formattedChat = this.formatMessagesForAI(messages);
+        const promptText = this.createSummaryPrompt(formattedChat);
+        
+        // Отправляем запрос к выбранному провайдеру (OpenAI/OpenRouter или Gemini)
+        if (this.provider === 'openai' || this.provider === 'openrouter') {
+          response = await fetch(this.baseUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json',
+              ...(this.provider === 'openrouter' ? { 'HTTP-Referer': 'https://yourdomain.com' } : {})
+            },
+            body: JSON.stringify({
+              model: this.model,
+              messages: [
+                {
+                  role: 'system',
+                  content: 'Ты - помощник, который создает краткие и информативные резюме чатов в Telegram. Отвечай на русском языке.'
+                },
+                {
+                  role: 'user',
+                  content: promptText
+                }
+              ],
+              max_tokens: 500,
+              temperature: 0.7
+            })
+          });
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`API ошибка: ${response.status} - ${errorData.error?.message || 'Неизвестная ошибка'}`);
+          }
+          const data = await response.json();
+          summary = data.choices?.[0]?.message?.content?.trim() || '';
+        } else if (this.provider === 'gemini') {
+          response = await fetch(this.baseUrl + `?key=${this.apiKey}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          });
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Gemini API ошибка: ${response.status} - ${errorData.error?.message || 'Неизвестная ошибка'}`);
+          }
+          const data = await response.json();
+          summary = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        }
+        if (!summary) {
+          throw new Error('Пустой ответ от LLM');
+        }
+        // Сохраняем резюме в историю для последующего просмотра
+        await this.saveSummaryToHistory(chatId, summary, messages.length);
+        return {
+          success: true,
+          summary: summary,
+          chatId: chatId,
+          messageCount: messages.length,
+          timestamp: Date.now()
+        };
+      } catch (error) {
+        console.error('Grensa.AI: Ошибка генерации резюме:', error);
+        
+        let errorMessage = 'Ошибка при генерации резюме';
+        
+        if (error.message.includes('401')) {
+          errorMessage = 'Неверный API ключ или настройки';
+        } else if (error.message.includes('429')) {
+          errorMessage = 'Превышен лимит запросов';
+        } else if (error.message.includes('quota')) {
+          errorMessage = 'Исчерпана квота';
+        }
+  
+        return {
+          error: errorMessage,
+          details: error.message
+        };
+      }
+    }
+  
+    // Преобразуем сообщения в формат, понятный для AI
+    // Каждое сообщение становится строкой "Отправитель: текст"
+    formatMessagesForAI(messages) {
+      return messages.map(msg => {
+        const direction = msg.isOutgoing ? 'Я' : msg.sender;
+        return `${direction}: ${msg.text}`;
+      }).join('\n');
+    }
+  
+    // Создаем промпт для AI с инструкциями по структурированию резюме
+    // Промпт просит выделить основные темы разговора и дать ключевые слова для поиска
+    createSummaryPrompt(formattedChat) {
+      return `The text document below is a message history from a Telegram group chat.
+I need you to summarize this chat history and yield 5 primary conversation topics.
+Each conversation topic mentioned should be accompanied by a one-sentence summaries of 2-3 most representative dialogs (not single messages) from the conversation on the given topic including user names. For each dialog summary provide the exact keywords with which the message can be found in the history using text search.
+IMPORTANT: The output should be provided in the language which prevails in the messages text.
+
+Here's an example of desired output in Russian language (follow the exact structure):
+
+**1. Планирование встречи**
+- Диалог Анны и Петра о выборе ресторана для корпоратива: обсуждали "Белые ночи" и "Максимилианс" (ключевые слова: ресторан, корпоратив, Белые ночи)
+- Обсуждение Марии и Игоря о времени встречи: договорились на 19:00 в пятницу (ключевые слова: 19:00, пятница, встреча)
+
+**2. Рабочие вопросы**
+- Диалог о дедлайне проекта между Сергеем и командой: перенос сдачи на понедельник (ключевые слова: дедлайн, проект, понедельник)
+
+---
+
+Чат:
+${formattedChat}`;
+    }
+  
+    // Сохраняем сгенерированное резюме в локальное хранилище
+    // Это позволяет пользователю просматривать историю резюме позже
+    async saveSummaryToHistory(chatId, summary, messageCount) {
+      try {
+        const result = await chrome.storage.local.get(['summaryHistory']);
+        const history = result.summaryHistory || [];
+  
+        const summaryEntry = {
+          id: Date.now().toString(),
+          chatId: chatId,
+          summary: summary,
+          messageCount: messageCount,
+          timestamp: Date.now(),
+          date: new Date().toLocaleString('ru-RU')
+        };
+  
+        history.unshift(summaryEntry);
+  
+        // Ограничиваем историю до 100 записей
+        const limitedHistory = history.slice(0, 100);
+  
+        await chrome.storage.local.set({ summaryHistory: limitedHistory });
+        
+        console.log('Grensa.AI: Резюме сохранено в историю');
+      } catch (error) {
+        console.error('Grensa.AI: Ошибка сохранения в историю:', error);
       }
     }
 }
