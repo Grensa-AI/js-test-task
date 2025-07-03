@@ -47,4 +47,4 @@ export const ERROR_MESSAGES = {
 
 export const STORAGE_KEY = "telegram-extension-position";
 export const CONTAINER_WIDTH = 400;
-export const CONTAINER_MIN_HEIGHT = 200;
+export const CONTAINER_MIN_HEIGHT = 500;

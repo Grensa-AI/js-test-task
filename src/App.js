@@ -11,9 +11,7 @@ import {
 
 const AppContainer = styled.div`
   width: 400px;
-  height: auto;
-  max-height: 600px;
-  min-height: 400px;
+  height: 500px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -21,7 +19,6 @@ const AppContainer = styled.div`
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  overflow-y: auto;
   color: #111827;
   position: fixed;
   top: ${(props) => props.$top}px;
@@ -30,6 +27,10 @@ const AppContainer = styled.div`
   cursor: ${(props) => (props.$isDragging ? "grabbing" : "grab")};
   transition: ${(props) =>
     props.$isDragging ? "none" : "box-shadow 0.2s ease"};
+  overflow: hidden auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 
   &:hover {
     box-shadow: ${(props) =>

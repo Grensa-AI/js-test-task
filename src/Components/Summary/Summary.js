@@ -3,10 +3,14 @@ import styled from "styled-components";
 import { Spinner, Button, ErrorMessage } from "../UI";
 
 const Container = styled.div`
+  height: 500px;
   padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 4px solid #6366f1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 `;
 
 const SummaryTitle = styled.h3`
