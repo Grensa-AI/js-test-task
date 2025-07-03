@@ -39,22 +39,34 @@ export default function App() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        chrome.storage.local.get('openaiKey', ({ openaiKey }) => {
-            if (openaiKey) setApiKey(openaiKey);
-        });
+        // В development chrome.storage может быть недоступен
+        if (
+            process.env.NODE_ENV !== 'development' &&
+            window.chrome &&
+            chrome.storage &&
+            chrome.storage.local
+        ) {
+            chrome.storage.local.get('openaiKey', ({ openaiKey }) => {
+                if (openaiKey) setApiKey(openaiKey);
+            });
+        }
     }, []);
 
     const saveKey = () => {
-        chrome.storage.local.set({ openaiKey: apiKey }, () =>
-            alert('API-ключ сохранён')
-        );
+        if (window.chrome && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({ openaiKey: apiKey }, () =>
+                alert('API-ключ сохранён')
+            );
+        } else {
+            alert('Сохранение ключа недоступно в этой среде');
+        }
     };
 
     const generateSummary = async () => {
         setError('');
         setLoading(true);
 
-        // Мок-режим для локальной разработки
+        // mock-режим для локальной разработки
         if (process.env.NODE_ENV === 'development') {
             await new Promise(r => setTimeout(r, 500));
             setSummary('Это тестовое резюме чата (mock).');
