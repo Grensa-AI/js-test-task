@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { extractChat } from './extractChat';
+import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
+import { extractChat } from './extractChat'
 
 const AppContainer = styled.div`
     width: 400px;
@@ -12,7 +12,7 @@ const AppContainer = styled.div`
     padding: 20px;
     overflow-y: auto;
     color: #111827;
-`;
+`
 
 const Button = styled.button`
     padding: 8px 12px;
@@ -22,7 +22,7 @@ const Button = styled.button`
     border-radius: 6px;
     cursor: pointer;
     &:disabled { opacity: 0.6; cursor: default; }
-`;
+`
 
 const Input = styled.input`
     width: calc(100% - 12px);
@@ -30,85 +30,93 @@ const Input = styled.input`
     margin-bottom: 12px;
     border: 1px solid #d1d5db;
     border-radius: 4px;
-`;
+`
 
 export default function App() {
-    const [apiKey, setApiKey] = useState('');
-    const [summary, setSummary] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [apiKey, setApiKey] = useState('')
+    const [summary, setSummary] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
     useEffect(() => {
-        // В development chrome.storage может быть недоступен
+        // 1) Попытаться прочитать из chrome.storage (extension)
         if (
-            process.env.NODE_ENV !== 'development' &&
             window.chrome &&
             chrome.storage &&
-            chrome.storage.local
+            chrome.storage.local &&
+            process.env.NODE_ENV !== 'development'
         ) {
             chrome.storage.local.get('openaiKey', ({ openaiKey }) => {
-                if (openaiKey) setApiKey(openaiKey);
-            });
+                if (openaiKey) setApiKey(openaiKey)
+            })
+        } else {
+            // 2) Фоллбэк на localStorage (dev / localhost)
+            const saved = localStorage.getItem('openaiKey')
+            if (saved) setApiKey(saved)
         }
-    }, []);
+    }, [])
 
     const saveKey = () => {
-        if (window.chrome && chrome.storage && chrome.storage.local) {
+        if (window.chrome && chrome.storage && chrome.storage.local && process.env.NODE_ENV !== 'development') {
             chrome.storage.local.set({ openaiKey: apiKey }, () =>
-                alert('API-ключ сохранён')
-            );
+                alert('API-ключ сохранён в chrome.storage')
+            )
         } else {
-            alert('Сохранение ключа недоступно в этой среде');
+            localStorage.setItem('openaiKey', apiKey)
+            alert('API-ключ сохранён в localStorage')
         }
-    };
+    }
 
     const generateSummary = async () => {
-        setError('');
-        setLoading(true);
+        setError('')
+        setLoading(true)
 
-        // mock-режим для локальной разработки
+        // mock в dev
         if (process.env.NODE_ENV === 'development') {
-            await new Promise(r => setTimeout(r, 500));
-            setSummary('Это тестовое резюме чата (mock).');
-            setLoading(false);
-            return;
+            await new Promise(r => setTimeout(r,500))
+            setSummary('Это тестовое резюме чата (mock).')
+            setLoading(false)
+            return
         }
 
         try {
-            const chat = extractChat();
-            if (!chat) throw new Error('Не найдено сообщений в чате');
+            const chat = extractChat()
+            if (!chat) throw new Error('Не найдено сообщений в чате')
 
-            const res = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${apiKey.trim()}`,
-                },
-                body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        { role: 'system', content: 'Ты ассистент, который резюмирует чат.' },
-                        { role: 'user', content: `Резюме переписки:\n\n${chat}` },
-                    ],
-                    max_tokens: 200,
-                }),
-            });
-
-            const { choices, error: apiError } = await res.json();
-            if (apiError) throw new Error(apiError.message);
-
-            setSummary(choices[0].message.content.trim());
+            const res = await fetch(
+                'https://api.openai.com/v1/chat/completions',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${apiKey.trim()}`,
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            { role: 'system', content: 'Ты ассистент, который резюмирует чат.' },
+                            { role: 'user', content: `Резюме переписки:\n\n${chat}` },
+                        ],
+                        max_tokens: 200,
+                    }),
+                }
+            )
+            const { choices, error: apiError } = await res.json()
+            if (apiError) throw new Error(apiError.message)
+            setSummary(choices[0].message.content.trim())
         } catch (e) {
-            console.error(e);
+            console.error(e)
             if (e.message.toLowerCase().includes('quota')) {
-                setError('Квота исчерпана. Пополните счёт в личном кабинете OpenAI.');
+                setError('Квота исчерпана. Пополните счёт в личном кабинете OpenAI.')
+            } else if (e.message.toLowerCase().includes('incorrect api key')) {
+                setError('Неверный API-ключ. Перепроверьте его и сохраните заново.')
             } else {
-                setError(e.message);
+                setError(e.message)
             }
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     return (
         <AppContainer>
@@ -121,7 +129,6 @@ export default function App() {
             <Button onClick={saveKey} disabled={!apiKey}>
                 Сохранить ключ
             </Button>
-
             <Button
                 onClick={generateSummary}
                 disabled={loading || !apiKey}
@@ -129,12 +136,10 @@ export default function App() {
             >
                 {loading ? 'Генерация…' : 'Сгенерировать резюме'}
             </Button>
-
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            <div style={{ marginTop: 12 }}>
+            {error && <p style={{ color:'red' }}>{error}</p>}
+            <div style={{ marginTop:12 }}>
                 {summary || 'Нажмите кнопку, чтобы получить резюме'}
             </div>
         </AppContainer>
-    );
+    )
 }
