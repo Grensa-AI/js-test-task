@@ -20,7 +20,7 @@ const Tab = styled.button`
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,6 +46,7 @@ const Badge = styled.span`
   font-weight: 600;
   min-width: 18px;
   text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
 `;
 
 export const Tabs = ({ activeTab, onTabChange, historyCount = 0 }) => {

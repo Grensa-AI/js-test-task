@@ -8,7 +8,7 @@ const ItemContainer = styled.div`
   border-radius: 8px;
   padding: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
   position: relative;
   margin-bottom: 0;
   flex-shrink: 0;
@@ -53,7 +53,8 @@ const RemoveButton = styled.button`
   padding: 4px 6px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    transform 0.1s ease;
   font-weight: 600;
 
   &:hover {
