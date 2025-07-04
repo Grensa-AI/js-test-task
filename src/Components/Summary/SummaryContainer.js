@@ -22,9 +22,7 @@ export const SummaryContainer = () => {
   const [status, setStatus] = useState(SUMMARY_STATUS.INITIAL)
   const [error, setError] = useState(null);
 
-  const lastChatIdRef = useRef(window.location.hash);
   const apiKey = process.env.REACT_APP_COHERE_API_KEY;
-
 
    useTelegramChatWatcher(() => {
     setSummary(SUMMARY_MESSAGES.DEFAULT);
