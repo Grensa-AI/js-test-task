@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Spinner, Button, ErrorMessage } from "../UI";
 
 const Container = styled.div`
-  height: 500px;
+  height: 420px;
   padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
@@ -11,6 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  overflow: hidden auto;
 `;
 
 const SummaryTitle = styled.h3`
@@ -57,6 +58,28 @@ const InstructionBox = styled.div`
 const RefreshButton = styled(Button)`
   margin-top: 12px;
   width: 100%;
+
+  &:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+`;
+
+const DismissButton = styled.button`
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 export const Summary = ({
@@ -66,7 +89,12 @@ export const Summary = ({
   onRefresh,
   isConfigured = true,
   transcriptionInfo = null,
+  historyError,
+  onClearHistoryError,
+  selectedHistoryItem = null,
 }) => {
+  const currentContent = selectedHistoryItem?.summary || summary;
+
   const renderTranscriptionStatus = () => {
     if (!transcriptionInfo || transcriptionInfo.audioFound === 0) {
       return null;
@@ -80,14 +108,6 @@ export const Summary = ({
         <HintBox>
           🎵 Найдено {audioFound} аудио сообщений. Обработано: {audioProcessed},
           не удалось: {audioFailed}
-        </HintBox>
-      );
-    }
-
-    if (audioProcessed > 0) {
-      return (
-        <HintBox>
-          ✅ Успешно обработано {audioProcessed} аудио сообщений
         </HintBox>
       );
     }
@@ -115,6 +135,16 @@ export const Summary = ({
         <>
           <SummaryTitle>⚠️ Ошибка</SummaryTitle>
           <ErrorMessage>{error}</ErrorMessage>
+
+          {historyError && (
+            <div style={{ marginTop: "8px", position: "relative" }}>
+              <ErrorMessage>
+                История: {historyError}
+                <DismissButton onClick={onClearHistoryError}>×</DismissButton>
+              </ErrorMessage>
+            </div>
+          )}
+
           <HintBox>
             <strong>💡 Возможные решения:</strong>
             <br />
@@ -132,7 +162,7 @@ export const Summary = ({
       return (
         <>
           <SummaryTitle>📝 Резюме чата</SummaryTitle>
-          <Text>{summary}</Text>
+          <Text>{currentContent}</Text>
 
           {renderTranscriptionStatus()}
 
@@ -149,7 +179,7 @@ export const Summary = ({
     return (
       <>
         <SummaryTitle>📋 Анализатор чата</SummaryTitle>
-        <Text>Создайте умное резюме сообщений Telegram</Text>
+        <Text>Создайте резюме сообщений Telegram</Text>
 
         <InstructionBox>
           <strong>📖 Как использовать:</strong>
