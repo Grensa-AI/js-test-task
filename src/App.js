@@ -8,7 +8,7 @@ import { OptionsApp } from './OptionsApp';
 import LoadingSpinner from './Components/LoadingSpinner/LoadingSpinner';
 import './Components/LoadingSpinner/LoadingSpinner.css';
 
-const App = () => {
+export const App = () => {
   const [summary, setSummary] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -209,5 +209,3 @@ const App = () => {
     </div>
   );
 };
-
-export default App;
