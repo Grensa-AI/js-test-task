@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Title } from "./Components/Title/Title";
 import { Summary } from "./Components/Summary/Summary";
+import { ApiKeyInput } from "./Components/ApiKey/ApiKeyInput";
 
 const AppContainer = styled.div`
   width: 400px;
@@ -19,10 +20,11 @@ const AppContainer = styled.div`
 `;
 
 export const App = () => {
-  return (
-    <AppContainer>
-      <Title />
-      <Summary />
-    </AppContainer>
-  );
+	return (
+		<AppContainer>
+			<Title />
+			<ApiKeyInput />
+			<Summary />
+		</AppContainer>
+	);
 };
