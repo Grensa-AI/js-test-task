@@ -107,6 +107,7 @@ const cleanTranscriptionText = (text) => {
 };
 
 const extractTextFromMessage = (messageElement) => {
+  if (!messageElement) return "";
   const clone = messageElement.cloneNode(true);
 
   const elementsToRemove = [
