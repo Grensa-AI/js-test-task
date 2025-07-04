@@ -142,7 +142,7 @@ export const App = () => {
         setNeedsApiKey(false);
       }
     } catch (error) {
-      console.error('Ошибка проверки API ключа:', error);
+
     }
   };
 
@@ -255,7 +255,7 @@ export const App = () => {
         setSuccess(`Резюме сгенерировано для ${response.messageCount} сообщений`);
       }
     } catch (error) {
-      console.error('Ошибка при автоматической генерации резюме:', error);
+      
     } finally {
       setLoading(false);
     }

@@ -40,7 +40,7 @@ class TelegramChatParser {
     }
   
     init() {
-      console.log('Grensa.AI: Content script загружен');
+    
       
       // Ждем загрузки Telegram Web
       this.waitForTelegramLoad();
@@ -58,11 +58,11 @@ class TelegramChatParser {
       const checkInterval = setInterval(() => {
         const chatContainer = document.querySelector('.bubbles, .messages-container, .chat-container .messages, [data-testid="messages-container"], .messages-wrapper, .chat-background .messages');
         if (chatContainer) {
-          console.log('Grensa.AI: Telegram Web загружен');
+  
           clearInterval(checkInterval);
           this.setupChatObserver();
           
-          console.log('Grensa.AI: createFloatingButton called');
+      
           createFloatingButton();
           setTimeout(makeExtensionDraggable, 1000);
         }
@@ -114,7 +114,7 @@ class TelegramChatParser {
       const newChatId = this.getCurrentChatId();
       
       if (newChatId !== this.currentChatId) {
-        console.log('Grensa.AI: Сменился чат', { from: this.currentChatId, to: newChatId });
+
         this.currentChatId = newChatId;
         
         // Уведомляем popup о смене чата
@@ -207,7 +207,7 @@ class TelegramChatParser {
           return { error: 'Сообщения не найдены в чате' };
         }
   
-        console.log('Grensa.AI: Извлечено сообщений:', messages.length);
+    
   
         // Получаем актуальные настройки
         const settings = await new Promise((resolve) => {
@@ -291,7 +291,7 @@ class TelegramChatParser {
     btn.addEventListener('click', (e) => {
       if (isDragging) return;
       chrome.runtime.sendMessage({ action: 'getProviderSettings' }, (settings) => {
-        console.log('Grensa.AI: getProviderSettings', settings);
+
         if (settings && settings.provider && settings.model && settings.apiKey) {
           let ext = document.getElementById('telegram-extension-root');
           if (!ext) {
@@ -416,7 +416,7 @@ class TelegramChatParser {
       ext.style.transform = `translate(${newX}px, ${newY}px)`;
     });
     document.addEventListener('mouseup', () => {
-      if (isDragging) console.log('Grensa.AI: drag end');
+
       isDragging = false;
       document.body.style.userSelect = '';
       ext.classList.remove('dragging');

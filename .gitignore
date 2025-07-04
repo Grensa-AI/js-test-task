@@ -14,8 +14,7 @@ dist/
 .env.test.local
 .env.production.local
 
-# Reference folder (do not include in repository)
-obrazec/
+
 
 # Logs
 npm-debug.log*

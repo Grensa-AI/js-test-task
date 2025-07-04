@@ -34,7 +34,7 @@ class OpenAIService {
   }
 
   init() {
-    console.log('Grensa.AI: Background script запущен');
+  
     // Загружаем ключи только из session storage при старте
     chrome.storage.session.get(['apiKeys'], (session) => {
       this.apiKeys = session.apiKeys || {};
@@ -153,7 +153,7 @@ class OpenAIService {
       this.provider = provider || 'openai';
       this.model = model || 'gpt-3.5-turbo';
       this.updateBaseUrl();
-      console.log('Grensa.AI: Настройки провайдера и модели сохранены');
+      
     } catch (error) {
       console.error('Grensa.AI: Ошибка сохранения настроек:', error);
       throw error;
@@ -376,7 +376,7 @@ ${formattedChat}`;
 
       await chrome.storage.local.set({ summaryHistory: limitedHistory });
       
-      console.log('Grensa.AI: Резюме сохранено в историю');
+      
     } catch (error) {
       console.error('Grensa.AI: Ошибка сохранения в историю:', error);
     }
