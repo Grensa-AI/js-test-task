@@ -17,10 +17,21 @@ export async function getSummary(messages, apiKey) {
     }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error("Ошибка от Cohere API");
+    const error = new Error("Ошибка от Cohere API");
+    error.code = response.status;
+    error.details = data.message || data.error || "";
+
+    console.error("Cohere API error:", {
+      status: response.status,
+      message: data.message,
+      full: data
+    });
+
+    throw error;
   }
 
-  const data = await response.json();
   return data.text;
 }
