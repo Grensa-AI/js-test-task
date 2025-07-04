@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { extractMessages } from '../../content'
 import { getSummary } from '../../openai'
+import { useChatWatcher } from '../../hooks/useChatWatcher'
 
 const Container = styled.div`
 	padding: 16px;
@@ -24,7 +25,7 @@ const Text = styled.p`
 	line-height: 1.5;
 `
 
-const Button = styled.button`
+export const Button = styled.button`
 	margin-top: 12px;
 	padding: 6px 12px;
 	background-color: #6366f1;
@@ -39,14 +40,6 @@ export const Summary = () => {
 	const [loading, setLoading] = useState(false)
 	const [apiKey, setApiKey] = useState('')
 	const [error, setError] = useState('')
-
-	useEffect(() => {
-		const key = localStorage.getItem('openai_api_key')
-		console.log('📦 localStorage ключ:', key)
-		if (key) {
-			setApiKey(key)
-		}
-	}, [])
 
 	const handleGenerate = async () => {
 		setLoading(true)
@@ -69,6 +62,7 @@ export const Summary = () => {
 		// const result = await getSummary(messages.join('\n'), apiKey)
 		// setSummary(result)
 
+		// Заменяем реальный вызов OpenAI на мок
 		await new Promise(res => setTimeout(res, 1000))
 		setSummary(
 			'Это пример резюме: участники обсудили текущие задачи, отметили прогресс и наметили план на завтра. (Платный OpenAI API-ключ)'
@@ -76,6 +70,20 @@ export const Summary = () => {
 
 		setLoading(false)
 	}
+
+	useChatWatcher(() => {
+		console.log('Чат сменился, генерируем новое резюме...')
+		setSummary('Генерация нового резюме...')
+		handleGenerate()
+	})
+
+	useEffect(() => {
+		const key = localStorage.getItem('openai_api_key')
+		console.log('📦 localStorage ключ:', key)
+		if (key) {
+			setApiKey(key)
+		}
+	}, [])
 
 	return (
 		<Container>
