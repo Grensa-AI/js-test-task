@@ -1,0 +1,223 @@
+/* Стили для компонента экспорта резюме */
+
+.grensa-export-container {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.grensa-export-header {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.grensa-export-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+}
+
+.grensa-export-title::before {
+  content: "📤";
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.grensa-export-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grensa-export-format-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grensa-export-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.grensa-export-select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.grensa-export-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.grensa-export-select:hover {
+  border-color: #9ca3af;
+}
+
+.grensa-export-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.grensa-export-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.grensa-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.grensa-export-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.grensa-export-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.grensa-export-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5b5beb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+}
+
+.grensa-export-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.grensa-export-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.grensa-export-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.grensa-export-btn:hover::before {
+  left: 100%;
+}
+
+.grensa-export-info {
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.grensa-export-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.grensa-export-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.grensa-export-info-icon {
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+/* Анимация загрузки для кнопок */
+.grensa-export-btn:disabled::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 480px) {
+  .grensa-export-container {
+    padding: 16px;
+  }
+  
+  .grensa-export-actions {
+    gap: 10px;
+  }
+  
+  .grensa-export-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .grensa-export-info {
+    padding: 12px;
+  }
+}
+
+/* Стили для состояний загрузки */
+.grensa-export-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Эффект пульсации для кнопок при экспорте */
+.grensa-export-btn:disabled {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.6;
+  }
+} 

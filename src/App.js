@@ -3,6 +3,7 @@ import './styles/extension-window.css';
 import Title from './Components/Title/Title';
 import Summary from './Components/Summary/Summary';
 import History from './Components/History/History';
+import Export from './Components/Export/Export';
 import LoadingSpinner from './Components/LoadingSpinner/LoadingSpinner';
 import './Components/LoadingSpinner/LoadingSpinner.css';
 
@@ -155,6 +156,12 @@ const App = () => {
         >
           История
         </button>
+        <button 
+          className={`grensa-tab ${currentView === 'export' ? 'active' : ''}`}
+          onClick={() => setCurrentView('export')}
+        >
+          Экспорт
+        </button>
       </div>
 
       {loading ? (
@@ -176,6 +183,13 @@ const App = () => {
           
           {currentView === 'history' && (
             <History onSelectSummary={handleHistoryItemSelect} />
+          )}
+          
+          {currentView === 'export' && (
+            <Export 
+              summary={summary} 
+              historyItem={selectedHistoryItem}
+            />
           )}
         </>
       )}
