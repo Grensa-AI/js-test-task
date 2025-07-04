@@ -100,7 +100,8 @@
 ### Установка зависимостей
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/js-test-task
+# Клонируйте ваш форк репозитория
+git clone https://github.com/mrKamanov/js-test-task.git
 cd js-test-task
 yarn install
 ```
