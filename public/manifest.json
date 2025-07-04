@@ -1,28 +1,28 @@
 {
-  "manifest_version": 3,
-  "name": "Telegram Extension",
-  "version": "1.0.0",
-  "description": "Chrome extension for Telegram Web",
-  "permissions": ["activeTab", "declarativeContent"],
-  "host_permissions": ["https://web.telegram.org/*"],
-  "action": {
-    "default_title": "Telegram Extension",
-    "default_popup": ""
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://web.telegram.org/*"],
-      "js": ["static/js/content.js"],
-      "run_at": "document_end"
-    }
-  ],
-  "background": {
-    "service_worker": "static/js/background.js"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["static/js/*.js", "static/css/*.css"],
-      "matches": ["https://web.telegram.org/*"]
-    }
-  ]
+	"manifest_version": 3,
+	"name": "Telegram Extension",
+	"version": "1.0.0",
+	"description": "Chrome extension for Telegram Web",
+	"permissions": ["activeTab", "declarativeContent", "storage"],
+	"host_permissions": ["https://web.telegram.org/*"],
+	"action": {
+		"default_title": "Telegram Extension",
+		"default_popup": ""
+	},
+	"content_scripts": [
+		{
+			"matches": ["https://web.telegram.org/*"],
+			"js": ["static/js/content.js"],
+			"run_at": "document_end"
+		}
+	],
+	"background": {
+		"service_worker": "static/js/background.js"
+	},
+	"web_accessible_resources": [
+		{
+			"resources": ["static/js/*.js", "static/css/*.css"],
+			"matches": ["https://web.telegram.org/*"]
+		}
+	]
 }
