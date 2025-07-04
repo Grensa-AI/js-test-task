@@ -130,23 +130,31 @@ yarn build
 ```
 ├── public/
 │   ├── manifest.json       # Конфигурация расширения
-│   └── index.html         # HTML шаблон
+│   ├── index.html         # HTML шаблон
+│   ├── icon16.png         # Иконка 16x16
+│   ├── icon32.png         # Иконка 32x32
+│   ├── icon48.png         # Иконка 48x48
+│   └── icon128.png        # Иконка 128x128
 ├── src/
 │   ├── App.js             # Главный компонент с интерфейсом
 │   ├── content.js         # Скрипт для парсинга Telegram
 │   ├── background.js      # Логика API и настроек
 │   ├── OptionsApp.js      # Страница настроек
-│   └── Components/
-│       ├── Title/         # Компонент заголовка
-│       ├── Summary/       # Компонент резюме
-│       ├── LoadingSpinner/ # Индикатор загрузки
-│       └── ApiKeySetup/   # Настройка API ключей
-├── src/styles/
-│   ├── extension-window.css # Стили основного окна
-│   ├── options.css        # Стили настроек
-│   └── content-extension.css # Стили для content script
+│   ├── index.js           # Точка входа
+│   ├── Components/
+│   │   ├── Title/         # Компонент заголовка
+│   │   ├── Summary/       # Компонент резюме
+│   │   └── LoadingSpinner/# Индикатор загрузки
+│   └── styles/
+│       ├── extension-window.css # Стили основного окна
+│       ├── options.css        # Стили настроек
+│       └── content-extension.css # Стили для content script
+├── screenshots/           # Скриншоты работающего расширения
 ├── package.json
-└── craco.config.js        # Конфигурация сборки
+├── yarn.lock
+├── craco.config.js        # Конфигурация сборки
+├── manifest.json
+└── README.md
 ```
 
 ## Тестирование

@@ -144,8 +144,11 @@
 ```
 ├── public/               # Публичные файлы
 │   ├── manifest.json     # Конфигурация расширения
-│   ├── index.html       # HTML шаблон
-│   └── icon*.png        # Иконки расширения (16, 32, 48, 128px)
+│   ├── index.html        # HTML шаблон
+│   ├── icon16.png        # Иконка 16x16
+│   ├── icon32.png        # Иконка 32x32
+│   ├── icon48.png        # Иконка 48x48
+│   └── icon128.png       # Иконка 128x128
 ├── src/
 │   ├── App.js           # Главный компонент с интерфейсом и логикой
 │   ├── content.js       # Content script для парсинга Telegram и drag & drop
@@ -155,29 +158,16 @@
 │   ├── Components/      # React компоненты
 │   │   ├── Title/       # Компонент заголовка с логотипом
 │   │   ├── Summary/     # Компонент отображения резюме
-│   │   ├── LoadingSpinner/ # Индикатор загрузки
-│   │   ├── ApiKeySetup/ # Компонент настройки API ключей
-│   │   └── SuggestedMessages/ # Компонент предлагаемых сообщений
+│   │   └── LoadingSpinner/ # Индикатор загрузки
 │   └── styles/          # CSS стили
 │       ├── extension-window.css # Стили главного окна
 │       ├── options.css  # Стили страницы настроек
 │       └── content-extension.css # Стили для content script
 ├── screenshots/          # Скриншоты работающего расширения
 ├── package.json         # Зависимости и скрипты
+├── yarn.lock            # Лок-файл зависимостей
 ├── craco.config.js      # Конфигурация сборки
+├── manifest.json        # Манифест расширения
 ├── README.md           # Документация проекта
 └── MERGE_REQUEST_TEMPLATE.md # Шаблон для merge request
 ```
-
-### Ключевые файлы:
-- `content.js` - парсинг сообщений из Telegram Web и реализация drag & drop
-- `background.js` - интеграция с ИИ API (OpenAI, OpenRouter, Gemini) и управление настройками
-- `App.js` - основной интерфейс с табами, историей и управлением состоянием
-- `OptionsApp.js` - страница настроек для конфигурации API ключей
-- `manifest.json` - конфигурация расширения и разрешения
-- `craco.config.js` - настройки сборки для Chrome Extension
-
-### Использованные библиотеки:
-- `react-markdown` - форматирование резюме
-- `styled-components` - стилизация компонентов
-- `github-markdown-css` - стили для Markdown 
