@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './styles/extension-window.css';
 import Title from './Components/Title/Title';
 import Summary from './Components/Summary/Summary';
+import History from './Components/History/History';
 import LoadingSpinner from './Components/LoadingSpinner/LoadingSpinner';
 import './Components/LoadingSpinner/LoadingSpinner.css';
 
@@ -11,6 +12,8 @@ const App = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [needsApiKey, setNeedsApiKey] = useState(false);
+  const [currentView, setCurrentView] = useState('summary'); 
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
 
   useEffect(() => {
     // Проверяем, есть ли API ключ при загрузке
@@ -46,6 +49,7 @@ const App = () => {
     setLoading(true);
     setError('');
     setSuccess('');
+    setSelectedHistoryItem(null);
     
     try {
       if (!window.location.href.includes('web.telegram.org')) {
@@ -77,6 +81,7 @@ const App = () => {
       if (response.success) {
         setSummary(response.summary);
         setSuccess(`Резюме сгенерировано для ${response.messageCount} сообщений`);
+        setCurrentView('summary');
       }
     } catch (error) {
       setError(error.message);
@@ -91,6 +96,13 @@ const App = () => {
     } else if (type === 'success') {
       setSuccess('');
     }
+  };
+
+  const handleHistoryItemSelect = (item) => {
+    setSelectedHistoryItem(item);
+    setSummary(item.summary);
+    setCurrentView('summary');
+    setSuccess(`Загружено резюме от ${new Date(item.timestamp).toLocaleString('ru-RU')}`);
   };
 
   const MessageComponent = ({ message, type, onClose }) => {
@@ -128,18 +140,43 @@ const App = () => {
           Для работы расширения необходимо настроить API ключ в настройках
         </div>
       )}
+      
+      {/* Переключатель вкладок */}
+      <div className="grensa-tabs">
+        <button 
+          className={`grensa-tab ${currentView === 'summary' ? 'active' : ''}`}
+          onClick={() => setCurrentView('summary')}
+        >
+          Текущее резюме
+        </button>
+        <button 
+          className={`grensa-tab ${currentView === 'history' ? 'active' : ''}`}
+          onClick={() => setCurrentView('history')}
+        >
+          История
+        </button>
+      </div>
+
       {loading ? (
         <LoadingSpinner />
       ) : (
         <>
-          <Summary summary={summary} />
-          <button 
-            onClick={generateSummary} 
-            className="grensa-generate-button"
-            disabled={needsApiKey}
-          >
-            Обновить резюме
-          </button>
+          {currentView === 'summary' && (
+            <>
+              <Summary summary={summary} />
+              <button 
+                onClick={generateSummary} 
+                className="grensa-generate-button"
+                disabled={needsApiKey}
+              >
+                Обновить резюме
+              </button>
+            </>
+          )}
+          
+          {currentView === 'history' && (
+            <History onSelectSummary={handleHistoryItemSelect} />
+          )}
         </>
       )}
     </div>

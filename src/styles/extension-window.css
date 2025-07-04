@@ -153,7 +153,7 @@
   overflow-y: auto;
 }
 
-/* Стили для кнопки закрытия сообщений  */
+/* Стили для кнопки закрытия сообщений */
 .grensa-message-close {
   position: absolute;
   top: 8px;
@@ -169,4 +169,51 @@
 
 .grensa-message-close:hover {
   opacity: 1;
+}
+
+/* Стили для вкладок */
+.grensa-tabs {
+  display: flex;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 4px;
+  margin: 16px 0;
+  gap: 4px;
+}
+
+.grensa-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.grensa-tab:hover {
+  color: #374151;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.grensa-tab.active {
+  background: white;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.grensa-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
+  border-radius: 1px;
 } 
