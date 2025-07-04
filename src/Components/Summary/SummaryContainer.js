@@ -1,52 +1,60 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { getMessagesFromTelegram } from "../../Utils/messagesParser";
+import { useState, useEffect, useRef } from "react";
+import { getMessagesFromTelegram } from "../../utils/messagesParser";
 import { Summary } from "./Summary";
 import { getSummary } from "../../api/cohere";
+import { ERROR_MESSAGES, SUMMARY_MESSAGES, SUMMARY_STATUS } from "../../constants/constants";
+import { useTelegramChatWatcher } from "../../hooks/useTelegramChatWatcher";
+
+export const mapErrorToMessage = (err) => {
+  const message = err.message || "";
+
+   if (message.includes("NetworkError") || message.includes("Failed to fetch")) {
+    return ERROR_MESSAGES.NETWORK_ERROR;
+  }
+  if (err.code === 429) return ERROR_MESSAGES.RATE_LIMIT;
+  if (err.code === 401) return ERROR_MESSAGES.API_KEY_MISSING;
+  return ERROR_MESSAGES.DEFAULT;
+};
 
 export const SummaryContainer = () => {
-  const [summary, setSummary] = useState("Резюме появится после загрузки сообщений");
-  const [isLoading, setIsLoading] = useState(false);
+  const [summary, setSummary] = useState(SUMMARY_MESSAGES.DEFAULT);
+  const [status, setStatus] = useState(SUMMARY_STATUS.INITIAL)
   const [error, setError] = useState(null);
-  const lastChatIdRef = React.useRef(window.location.hash);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentHash = window.location.hash;
-      if (currentHash !== lastChatIdRef.current) {
-        lastChatIdRef.current = currentHash;
-        setSummary("Резюме появится после загрузки сообщений");
-        setError(null);
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
+  const lastChatIdRef = useRef(window.location.hash);
   const apiKey = process.env.REACT_APP_COHERE_API_KEY;
 
-  const handleGenerate = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
 
+   useTelegramChatWatcher(() => {
+    setSummary(SUMMARY_MESSAGES.DEFAULT);
+    setStatus(SUMMARY_STATUS.INITIAL);
+    setError(null);
+  });
+  
+
+  const handleGenerate = async () => {
+    setStatus(SUMMARY_STATUS.LOADING);
+    setError(null);
+
+    try {
       const messages = getMessagesFromTelegram();
       if (!messages.length) {
-        setSummary("Сообщения не найдены");
+        setError(ERROR_MESSAGES.NO_MESSAGES)
+        setStatus(SUMMARY_STATUS.ERROR);
         return;
       }
 
       const generatedSummary = await getSummary(messages, apiKey);
       setSummary(generatedSummary);
+      setStatus(SUMMARY_STATUS.SUCCESS);
     } catch (err) {
-      console.error("Ошибка генерации резюме:", err);
-      setError("Ошибка при генерации резюме");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      setError(mapErrorToMessage(err));
+      setStatus(SUMMARY_STATUS.ERROR);
+    };
+  }
 
   return (
-    <Summary isLoading={isLoading} summary={summary} onGenerateSummary={handleGenerate} />
+    <Summary status={status} summary={summary} error={error} onGenerateSummary={handleGenerate} />
   );
-};
+}
