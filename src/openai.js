@@ -26,7 +26,7 @@ export async function getSummary(messagesText, apiKey) {
 			return `OpenAI error: ${data?.error?.message ?? "Unknown error"}`;
 		}
 
-		return data.choices?.[0]?.message?.content ?? "⚠️ Ответ пуст";
+		return data.choices?.[0]?.message?.content ?? "Ответ пуст";
 	} catch (error) {
 		console.error("Сетевая ошибка:", error);
 		return "Не удалось получить резюме (сетевая ошибка)";
