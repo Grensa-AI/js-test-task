@@ -1,177 +1,253 @@
-/* Базовые стили для окна расширения Grensa.AI */
+/* Изолированные стили для окна расширения Grensa.AI */
 
-.grensa-extension-container {
-  padding: 20px;
-  max-width: 500px;
-  font-family: 'Segoe UI', 'Arial', sans-serif;
-}
-
-.grensa-window-title-header {
+.grensa-window-root {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+  user-select: auto !important;
+  background: #fff !important;
+  color: #222 !important;
+  font-family: 'Segoe UI', 'Arial', sans-serif !important;
+  font-size: 16px !important;
+  box-sizing: border-box !important;
+  border-radius: 16px !important;
+  border: 1px solid #e0e0e0 !important;
+  outline: none !important;
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1) !important;
+  width: 600px !important;
+  height: 520px !important;
+  min-width: 600px !important;
+  max-width: 600px !important;
+  min-height: 520px !important;
+  max-height: 520px !important;
   display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
+  flex-direction: column !important;
+}
+.grensa-window-root.dragging {
+  transition: none !important;
 }
 
-.grensa-window-title-logo {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  font-weight: bold;
-  color: white;
-  font-size: 18px;
+.grensa-window-header {
+  width: 100% !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 16px !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  border-bottom: 1px solid #ececec !important;
+  background: #f8f8f8 !important;
+  border-radius: 16px 16px 0 0 !important;
+  cursor: move !important;
+  user-select: none !important;
 }
 
-.grensa-window-title-text {
-  margin: 0;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 600;
+.grensa-window-close {
+  margin-left: auto !important;
+  background: none !important;
+  border: none !important;
+  color: #888 !important;
+  font-size: 22px !important;
+  cursor: pointer !important;
+  padding: 0 8px !important;
+  transition: color 0.2s !important;
+}
+.grensa-window-close:hover {
+  color: #e74c3c !important;
 }
 
-.grensa-window-summary-container {
-  margin: 20px 0;
-  min-height: 120px;
+.grensa-window-content {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  padding: 24px 24px 16px 24px !important;
 }
 
-.grensa-window-summary-header {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #374151;
-}
-
-.grensa-window-summary-markdown {
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 15px;
-  line-height: 1.6;
-  font-size: 14px;
-  border: 1px solid #e5e7eb;
-  overflow-x: auto;
-  margin: 0;
-}
-
-.grensa-window-summary-placeholder {
-  opacity: 0.6;
-  font-style: italic;
-  text-align: center;
-  padding: 30px 20px;
-  color: #6b7280;
-}
-
-.grensa-generate-button {
+.grensa-window-btn {
   background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 12px 24px;
+  padding: 10px 22px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   box-shadow: 0 2px 8px #e0e6f6;
   transition: background 0.2s, box-shadow 0.2s;
-  width: 100%;
-  margin-top: 16px;
 }
-
-.grensa-generate-button:hover {
-  background: linear-gradient(90deg, #8f6aff 0%, #6a8cff 100%);
-  box-shadow: 0 4px 16px #d0d8f6;
-}
-
-.grensa-generate-button:disabled {
+.grensa-window-btn:disabled {
   background: #e0e6f6;
   color: #aaa;
   cursor: not-allowed;
   box-shadow: none;
 }
-
-/* Стили для сообщений об ошибках и успехе */
-.grensa-window-error-message {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  border: 1px solid #fca5a5;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 16px 0;
-  color: #991b1b;
-  font-size: 14px;
-  line-height: 1.5;
-  position: relative;
-  animation: slideIn 0.3s ease-out;
+.grensa-window-btn:not(:disabled):hover {
+  background: linear-gradient(90deg, #8f6aff 0%, #6a8cff 100%);
+  box-shadow: 0 4px 16px #d0d8f6;
 }
 
-.grensa-window-error-message::before {
-  content: "⚠️";
-  margin-right: 8px;
-  font-size: 16px;
+/* Сброс стилей для инпутов и чекбоксов внутри окна */
+.grensa-window-root input,
+.grensa-window-root select,
+.grensa-window-root textarea {
+  font-family: inherit !important;
+  font-size: 15px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  padding: 8px 12px !important;
+  margin: 6px 0 !important;
+  outline: none !important;
+  box-sizing: border-box !important;
 }
 
+.grensa-window-root input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 8px !important;
+}
+
+.grensa-window-title-header {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.grensa-window-title-logo {
+  width: 32px !important;
+  height: 32px !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 12px !important;
+  font-weight: bold !important;
+  color: white !important;
+  font-size: 18px !important;
+}
+
+.grensa-window-title-text {
+  margin: 0 !important;
+  color: #111827 !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+
+.grensa-window-summary-container {
+  margin: 20px 0 !important;
+  min-height: 120px !important;
+}
+
+.grensa-window-summary-header {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin-bottom: 12px !important;
+  opacity: 0.9 !important;
+}
+
+.grensa-window-summary-markdown {
+  background: rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+  padding: 15px !important;
+  line-height: 1.6 !important;
+  font-size: 14px !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  overflow-x: auto !important;
+  margin: 0 !important;
+}
+
+.grensa-window-summary-placeholder {
+  opacity: 0.6 !important;
+  font-style: italic !important;
+  text-align: center !important;
+  padding: 30px 20px !important;
+}
+
+.grensa-window-error-message, .grensa-window-success-message {
+  margin: 12px 0 !important;
+  padding: 12px 18px !important;
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  background: #fff6f6 !important;
+  color: #c0392b !important;
+  border: 1px solid #f5c6cb !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
 .grensa-window-success-message {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  border: 1px solid #86efac;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 16px 0;
-  color: #166534;
-  font-size: 14px;
-  line-height: 1.5;
-  position: relative;
-  animation: slideIn 0.3s ease-out;
+  background: #f6fff6 !important;
+  color: #27ae60 !important;
+  border: 1px solid #b7eacb !important;
 }
 
-.grensa-window-success-message::before {
-  content: "✅";
-  margin-right: 8px;
-  font-size: 16px;
+.grensa-window-status-bar {
+  margin-top: 18px !important;
+  font-size: 13px !important;
+  color: #888 !important;
+  display: flex !important;
+  gap: 18px !important;
 }
 
-/* Анимация появления сообщений */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Стили для markdown-body внутри окна */
+.grensa-window-summary-markdown .markdown-body {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  color: #222 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* Стили для длинных сообщений об ошибках */
-.grensa-window-error-message,
-.grensa-window-success-message {
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  max-height: 200px;
-  overflow-y: auto;
+.grensa-window-summary-markdown .markdown-body p {
+  margin: 0 0 8px 0 !important;
 }
 
-/* Стили для кнопки закрытия сообщений */
-.grensa-message-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 16px;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+.grensa-window-summary-markdown .markdown-body ul,
+.grensa-window-summary-markdown .markdown-body ol {
+  margin: 0 0 8px 18px !important;
 }
 
-.grensa-message-close:hover {
-  opacity: 1;
+.grensa-window-summary-markdown .markdown-body strong {
+  font-weight: 600 !important;
 }
 
-/* Стили для вкладок */
+.grensa-window-summary-markdown .markdown-body em {
+  font-style: italic !important;
+}
+
+.grensa-window-summary-markdown .markdown-body code {
+  background: #f4f4f4 !important;
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  font-size: 13px !important;
+}
+
+.auto-update-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 16px !important;
+}
+
+.auto-update-row input[type="checkbox"] {
+  appearance: checkbox !important;
+  -webkit-appearance: checkbox !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  position: relative !important;
+  z-index: 2 !important;
+  background: #fff !important;
+  border: 1px solid #e0e0e0 !important;
+  margin-right: 8px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Стили для табов */
 .grensa-tabs {
   display: flex;
   background: #f3f4f6;
