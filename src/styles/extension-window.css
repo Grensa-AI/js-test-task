@@ -227,4 +227,57 @@
     padding: 6px 8px;
     font-size: 12px;
   }
+}
+
+/* Стили для контейнера настроек в popup */
+.grensa-settings-container {
+  max-height: 400px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.grensa-settings-container .options-fullscreen {
+  position: static;
+  width: auto;
+  height: auto;
+  background: transparent;
+  display: block;
+  overflow: visible;
+}
+
+.grensa-settings-container .options-tabs {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.grensa-settings-container .options-content {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 0;
+  min-width: auto;
+  max-width: none;
+}
+
+.grensa-settings-container .options-block {
+  margin-bottom: 16px;
+}
+
+.grensa-settings-container .options-input {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.grensa-settings-container .options-save-btn {
+  background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.grensa-settings-container .options-save-btn:hover {
+  background: linear-gradient(90deg, #8f6aff 0%, #6a8cff 100%);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
 } 

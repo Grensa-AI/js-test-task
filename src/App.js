@@ -4,6 +4,7 @@ import Title from './Components/Title/Title';
 import Summary from './Components/Summary/Summary';
 import History from './Components/History/History';
 import Export from './Components/Export/Export';
+import { OptionsApp } from './OptionsApp';
 import LoadingSpinner from './Components/LoadingSpinner/LoadingSpinner';
 import './Components/LoadingSpinner/LoadingSpinner.css';
 
@@ -148,7 +149,7 @@ const App = () => {
           className={`grensa-tab ${currentView === 'summary' ? 'active' : ''}`}
           onClick={() => setCurrentView('summary')}
         >
-          Текущее резюме
+          Резюме
         </button>
         <button 
           className={`grensa-tab ${currentView === 'history' ? 'active' : ''}`}
@@ -161,6 +162,12 @@ const App = () => {
           onClick={() => setCurrentView('export')}
         >
           Экспорт
+        </button>
+        <button 
+          className={`grensa-tab ${currentView === 'settings' ? 'active' : ''}`}
+          onClick={() => setCurrentView('settings')}
+        >
+          Настройки
         </button>
       </div>
 
@@ -190,6 +197,12 @@ const App = () => {
               summary={summary} 
               historyItem={selectedHistoryItem}
             />
+          )}
+          
+          {currentView === 'settings' && (
+            <div className="grensa-settings-container">
+              <OptionsApp />
+            </div>
           )}
         </>
       )}
