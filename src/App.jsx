@@ -17,7 +17,7 @@ const generateSummary = async () => {
   try {
     setLoading(true);
 
-    // ⏱ Подождем 1.5 секунды, чтобы Telegram успел отрисовать DOM
+    // Подождем 1.5 секунды, чтобы Telegram успел отрисовать DOM
     await new Promise((res) => setTimeout(res, 1500));
 
     const messages = getLastMessages();
@@ -35,7 +35,6 @@ const generateSummary = async () => {
 
 
   useEffect(() => {
-    // Один раз при первом рендере
     generateSummary();
   }, []);
 

@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { getLastMessages } from "./utils/getLastMessages";
 
 // 1. Встраиваем расширение в DOM
 function injectExtension() {
@@ -22,40 +21,9 @@ function injectExtension() {
   root.render(React.createElement(App));
 }
 
-// 2. Ожидаем появления сообщений (не просто одного, а хотя бы нескольких)
-function waitForMessages(minCount = 5, timeout = 3000) {
-  return new Promise((resolve) => {
-    const checkMessages = () => {
-      const bubbles = document.querySelectorAll("div.bubble-content");
-      if (bubbles.length >= minCount) {
-        observer.disconnect();
-        clearTimeout(timer);
-        resolve();
-      }
-    };
-
-    const observer = new MutationObserver(checkMessages);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    const timer = setTimeout(() => {
-      observer.disconnect();
-      resolve(); // всё равно продолжаем даже если мало сообщений
-    }, timeout);
-
-    checkMessages();
-  });
-}
-
-// 3. Старт
+// 2. Старт
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", injectExtension);
 } else {
   injectExtension();
 }
-
-waitForMessages().then(() => {
-  setTimeout(() => getLastMessages(20), 1000);
-});
