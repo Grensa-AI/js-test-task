@@ -8,6 +8,7 @@ export const useSummary = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [transcriptionInfo, setTranscriptionInfo] = useState(null);
+  const [messagesInfo, setMessagesInfo] = useState([]);
 
   const cacheRef = useRef(new Map());
   const isProcessingRef = useRef(false);
@@ -32,6 +33,7 @@ export const useSummary = () => {
       const messages = result.messages;
       const transcriptionStatus = result.transcriptionStatus;
       const currentHash = createMessagesHash(messages);
+      setMessagesInfo(messages);
 
       if (cacheRef.current.has(currentHash)) {
         const cachedData = cacheRef.current.get(currentHash);
@@ -58,6 +60,7 @@ export const useSummary = () => {
     } catch (err) {
       setError(err.message);
       setSummary("");
+      setMessagesInfo([]);
     } finally {
       setIsLoading(false);
       isProcessingRef.current = false;
@@ -69,6 +72,7 @@ export const useSummary = () => {
     isLoading,
     error,
     transcriptionInfo,
+    messagesInfo,
     isConfigured: isConfigured(),
     generateSummary: handleGenerateSummary,
   };
