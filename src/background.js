@@ -1,11 +1,11 @@
 // Фоновый скрипт для работы с OpenAI API
-// Этот файл отвечает за всю логику работы с API провайдерами (OpenAI, OpenRouter, Gemini)
+// Этот файл отвечает за всю логику работы с API провайдерами 
 // и управляет настройками расширения
 
 class OpenAIService {
     constructor() {
       this.apiKey = null;
-      this.apiKeys = {}; // { provider: apiKey }
+      this.apiKeys = {}; 
       this.provider = 'openai';
       this.model = 'gpt-3.5-turbo';
       this.baseUrl = 'https://api.openai.com/v1/chat/completions';
@@ -14,7 +14,7 @@ class OpenAIService {
   
     init() {
       console.log('Grensa.AI: Background script запущен');
-      // Загружаем сохраненные API ключи из сессионного хранилища
+      
       chrome.storage.session.get(['apiKeys'], (session) => {
         this.apiKeys = session.apiKeys || {};
       });
@@ -217,7 +217,7 @@ class OpenAIService {
         const formattedChat = this.formatMessagesForAI(messages);
         const promptText = this.createSummaryPrompt(formattedChat);
         
-        // Отправляем запрос к выбранному провайдеру (OpenAI/OpenRouter или Gemini)
+        
         if (this.provider === 'openai' || this.provider === 'openrouter') {
           response = await fetch(this.baseUrl, {
             method: 'POST',
@@ -268,7 +268,7 @@ class OpenAIService {
         if (!summary) {
           throw new Error('Пустой ответ от LLM');
         }
-        // Сохраняем резюме в историю для последующего просмотра
+        
         await this.saveSummaryToHistory(chatId, summary, messages.length);
         return {
           success: true,
@@ -307,7 +307,7 @@ class OpenAIService {
     }
   
     // Создаем промпт для AI с инструкциями по структурированию резюме
-    // Промпт просит выделить основные темы разговора и дать ключевые слова для поиска
+    
     createSummaryPrompt(formattedChat) {
       return `The text document below is a message history from a Telegram group chat.
 I need you to summarize this chat history and yield 5 primary conversation topics.
@@ -330,7 +330,7 @@ ${formattedChat}`;
     }
   
     // Сохраняем сгенерированное резюме в локальное хранилище
-    // Это позволяет пользователю просматривать историю резюме позже
+    
     async saveSummaryToHistory(chatId, summary, messageCount) {
       try {
         const result = await chrome.storage.local.get(['summaryHistory']);
