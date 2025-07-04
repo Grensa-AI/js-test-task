@@ -1,4 +1,4 @@
-export function getLastMessages(limit = 20) {
+export function getLastMessages(limit = 30) {
   const bubbleNodes = document.querySelectorAll("div.bubble-content");
   const messages = [];
 

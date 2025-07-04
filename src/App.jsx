@@ -3,6 +3,7 @@ import { FloatingToggleButton } from "./Components/FloatingToggleButton/Floating
 import { FloatingWindow } from "./Components/FloatingWindow/FloatingWindow";
 import { fetchSummaryFromOpenAI } from "./api/openai";
 import { getLastMessages } from "./utils/getLastMessages";
+import styled from "styled-components";
 
 export const App = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -10,24 +11,21 @@ export const App = () => {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    const messages = getLastMessages();
-    console.log("📥 Полученные сообщения:", messages);
+  const generateSummary = async () => {
+    try {
+      setLoading(true);
+      const messages = getLastMessages();
+      console.log("📥 Полученные сообщения:", messages);
 
-    setLoading(true); // 🔼 перемещено выше
-
-    fetchSummaryFromOpenAI(messages)
-      .then((result) => setSummary(result))
-      .catch((err) => {
-        console.error("Ошибка при генерации резюме:", err);
-        setSummary("⚠️ Ошибка при получении резюме.");
-      })
-      .finally(() => setLoading(false));
-  }, 3000);
-
-  return () => clearTimeout(timer);
-}, []);
+      const result = await fetchSummaryFromOpenAI(messages);
+      setSummary(result);
+    } catch (err) {
+      console.error("Ошибка при генерации резюме:", err);
+      setSummary("⚠️ Ошибка при получении резюме.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem("extensionPos");
@@ -46,6 +44,18 @@ useEffect(() => {
     localStorage.setItem("extensionPos", JSON.stringify(newPos));
   };
 
+  const GenerateButton = styled.button`
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 6px;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+  `;
+
   return (
     <>
       {!isOpen && <FloatingToggleButton onClick={() => setIsOpen(true)} />}
@@ -55,7 +65,11 @@ useEffect(() => {
           onDrag={handleDrag}
           summary={summary}
           loading={loading}
-        />
+        >
+          <GenerateButton onClick={generateSummary} disabled={loading}>
+            {loading ? "Генерация..." : "Сгенерировать резюме"}
+          </GenerateButton>
+        </FloatingWindow>
       )}
     </>
   );
