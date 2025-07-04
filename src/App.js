@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import styled from "styled-components";
 import { Title } from "./Components/Title/Title";
 import { Summary } from "./Components/Summary/Summary";
@@ -7,8 +7,8 @@ import { useHistory } from "./hooks/useHistory";
 import { History } from "./Components/History/History";
 import { Tabs } from "./Components/Tabs/Tabs";
 import { useTabs } from "./hooks/useTabs";
+import { useDraggable } from "./hooks/useDraggable";
 import {
-  STORAGE_KEY,
   CONTAINER_WIDTH,
   CONTAINER_MIN_HEIGHT,
   RIGHT_OFFSET,
@@ -50,11 +50,6 @@ const ContentArea = styled.div`
   min-height: 0;
 `;
 
-const getDefaultPosition = () => ({
-  top: 20,
-  left: Math.max(0, window.innerWidth - CONTAINER_WIDTH - RIGHT_OFFSET),
-});
-
 export const App = () => {
   const {
     summary,
@@ -78,129 +73,19 @@ export const App = () => {
   const { activeTab, switchToTab } = useTabs("summary");
 
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
-
-  const [position, setPosition] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-
-      if (!saved) return getDefaultPosition();
-
-      const parsed = JSON.parse(saved);
-
-      const maxLeft = Math.max(0, window.innerWidth - CONTAINER_WIDTH);
-      const maxTop = Math.max(0, window.innerHeight - CONTAINER_MIN_HEIGHT);
-
-      return {
-        top: Math.min(parsed.top, maxTop),
-        left: Math.min(parsed.left, maxLeft),
-      };
-    } catch (error) {
-      return getDefaultPosition();
-    }
-  });
-
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const prevSummaryRef = useRef("");
 
-  const savePosition = useCallback((newPosition) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newPosition));
-    } catch (_error) {
-      //не критично, не перехватываем
-    }
-  }, []);
-
-  const handleMouseDown = (e) => {
-    if (
-      e.target.tagName === "BUTTON" ||
-      e.target.closest("button") ||
-      e.target.closest(".history-item") ||
-      e.target.closest(".tab-container")
-    ) {
-      return;
-    }
-
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.left,
-      y: e.clientY - position.top,
-    });
-
-    e.preventDefault();
-  };
-
-  const handleMouseMove = useCallback(
-    (e) => {
-      if (isDragging) {
-        const newPosition = {
-          left: Math.max(
-            0,
-            Math.min(
-              window.innerWidth - CONTAINER_WIDTH,
-              e.clientX - dragStart.x
-            )
-          ),
-          top: Math.max(
-            0,
-            Math.min(
-              window.innerHeight - CONTAINER_MIN_HEIGHT,
-              e.clientY - dragStart.y
-            )
-          ),
-        };
-        setPosition(newPosition);
-      }
+  const { position, isDragging, handleMouseDown } = useDraggable(
+    {
+      top: 20,
+      left: Math.max(0, window.innerWidth - CONTAINER_WIDTH - RIGHT_OFFSET),
     },
-    [isDragging, dragStart]
+    {
+      width: CONTAINER_WIDTH,
+      height: CONTAINER_MIN_HEIGHT,
+      rightOffset: RIGHT_OFFSET,
+    }
   );
-
-  const handleMouseUp = useCallback(() => {
-    if (isDragging) {
-      setIsDragging(false);
-      savePosition(position);
-    }
-  }, [isDragging, position, savePosition]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setPosition((prev) => {
-        const maxLeft = Math.max(0, window.innerWidth - CONTAINER_WIDTH);
-        const maxTop = Math.max(0, window.innerHeight - CONTAINER_MIN_HEIGHT);
-
-        const newPosition = {
-          left: Math.min(prev.left, maxLeft),
-          top: Math.min(prev.top, maxTop),
-        };
-
-        if (newPosition.left !== prev.left || newPosition.top !== prev.top) {
-          savePosition(newPosition);
-        }
-
-        return newPosition;
-      });
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [savePosition]);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-
-      document.body.style.userSelect = "none";
-      document.body.style.pointerEvents = "none";
-
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-        document.body.style.userSelect = "";
-        document.body.style.pointerEvents = "";
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   useEffect(() => {
     const handleMessage = (request) => {
