@@ -17,7 +17,7 @@ const getDefaultModel = (provider) => {
   }
 };
 
-const OptionsApp = () => {
+export const OptionsApp = () => {
   const [activeTab, setActiveTab] = useState('provider');
   const [activeProvider, setActiveProvider] = useState(PROVIDERS[0].key);
   const [models, setModels] = useState({});
@@ -26,15 +26,19 @@ const OptionsApp = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [providerToSave, setProviderToSave] = useState(PROVIDERS[0].key);
+  const [prompts, setPrompts] = useState(['', '', '']);
+  const [activePrompt, setActivePrompt] = useState('default');
   const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
-    chrome.storage.local.get(['models', 'activeProvider'], (result) => {
+    chrome.storage.local.get(['models', 'activeProvider', 'prompts', 'activePrompt'], (result) => {
       setModels(result.models || {});
       if (result.activeProvider) {
         setActiveProvider(result.activeProvider);
         setProviderToSave(result.activeProvider);
       }
+      if (result.prompts) setPrompts(result.prompts);
+      if (result.activePrompt) setActivePrompt(result.activePrompt);
     });
     chrome.storage.session.get(['apiKeys'], (result) => {
       setApiKeys(result.apiKeys || {});
@@ -48,6 +52,10 @@ const OptionsApp = () => {
   useEffect(() => {
     chrome.storage.session.set({ apiKeys });
   }, [apiKeys]);
+
+  useEffect(() => {
+    chrome.storage.local.set({ prompts, activePrompt });
+  }, [prompts, activePrompt]);
 
   useEffect(() => {
     if (success || error) {
@@ -135,6 +143,44 @@ const OptionsApp = () => {
                 <option key={p.key} value={p.key}>{p.label}</option>
               ))}
             </select>
+            <div style={{marginTop:24}}>
+              <label style={{fontWeight:'bold',marginBottom:4}}>Пользовательские промпты</label>
+              {[0,1,2].map(i => (
+                <div key={i} style={{display:'flex',alignItems:'center',marginBottom:8,gap:8}}>
+                  <input
+                    type="checkbox"
+                    checked={activePrompt === String(i)}
+                    onChange={()=>{
+                      if (prompts[i].trim()) setActivePrompt(String(i));
+                    }}
+                    disabled={!prompts[i].trim()}
+                    className="options-checkbox"
+                  />
+                  <input
+                    type="text"
+                    value={prompts[i]}
+                    onChange={e=>{
+                      const arr = [...prompts];
+                      arr[i] = e.target.value;
+                      setPrompts(arr);
+                      if (!e.target.value.trim() && activePrompt === String(i)) setActivePrompt('default');
+                    }}
+                    className="options-input"
+                    placeholder={`Промпт ${i+1}`}
+                    style={{flex:1}}
+                  />
+                </div>
+              ))}
+              <div style={{display:'flex',alignItems:'center',marginBottom:8,gap:8}}>
+                <input
+                  type="checkbox"
+                  checked={activePrompt === 'default'}
+                  onChange={()=>setActivePrompt('default')}
+                  className="options-checkbox"
+                />
+                <span className="options-default-prompt">Стандартный промпт (по умолчанию)</span>
+              </div>
+            </div>
             <button className="options-save-btn" onClick={handleProviderSave} disabled={loading}>
               {loading ? 'Сохраняю...' : 'Сохранить'}
             </button>
@@ -197,11 +243,13 @@ const OptionsApp = () => {
             </button>
             {success && <div className="options-success">{success}</div>}
             {error && <div className="options-error">{error}</div>}
+            <div className="options-hint">
+              <b>Модель</b> сохраняется навсегда, <b>ключ</b> — только до перезапуска браузера.<br/>
+              Для работы расширения выберите провайдера, введите модель и ключ.
+            </div>
           </>
         )}
       </div>
     </div>
   );
-};
-
-export default OptionsApp; 
+}; 

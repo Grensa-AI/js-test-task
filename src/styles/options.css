@@ -1,4 +1,139 @@
+/* options.css — стили для страницы настроек расширения */
 
+.options-container {
+  width: 420px;
+  min-height: 350px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px 24px 16px 24px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.tab {
+  padding: 8px 18px;
+  border-radius: 8px 8px 0 0;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: background 0.2s;
+}
+
+.tab.active {
+  background: #fff;
+  color: #4f46e5;
+}
+
+.tab-content {
+  background: rgba(255,255,255,0.07);
+  border-radius: 0 0 10px 10px;
+  padding: 18px 12px 12px 12px;
+  min-height: 120px;
+}
+
+/* Можно добавить стили для форм, кнопок, инпутов и т.д. */
+
+.app-container {
+  width: 400px;
+  min-height: 300px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+  padding-top: 36px;
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+.success-message {
+  background: rgba(0, 255, 0, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  color: #51cf66;
+  font-size: 14px;
+}
+
+.grensa-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin: 5px;
+}
+.grensa-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.grensa-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.status-bar {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 10px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10003;
+  transition: background 0.2s;
+}
+.close-btn:hover {
+  background: rgba(255,255,255,0.3);
+  color: #ff6b6b;
+}
+
+.auto-update-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 
 .options-fullscreen {
   position: fixed;
@@ -13,14 +148,12 @@
   z-index: 99999;
   overflow-y: auto;
 }
-
 .options-tabs {
   display: flex;
   gap: 8px;
   margin-top: 32px;
   margin-bottom: 24px;
 }
-
 .options-tab {
   background: rgba(255,255,255,0.12);
   border: none;
@@ -31,13 +164,11 @@
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
-
 .options-tab.active {
   background: #fff;
   color: #764ba2;
   font-weight: bold;
 }
-
 .options-content {
   background: rgba(255,255,255,0.10);
   border-radius: 0 0 18px 18px;
@@ -51,96 +182,157 @@
   flex-direction: column;
   align-items: stretch;
 }
-
 .options-block {
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
 }
-
 .options-block label {
   margin-bottom: 8px;
   font-size: 17px;
   color: #fff;
   font-weight: 500;
 }
-
 .options-input {
   padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid #cfcfff;
   font-size: 16px;
-  background: rgba(255,255,255,0.9);
-  color: #333;
   outline: none;
-  transition: border-color 0.2s;
+  margin-bottom: 4px;
 }
-
-.options-input:focus {
-  border-color: #764ba2;
-}
-
 .options-save-btn {
-  background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
-  color: #fff;
+  background: #fff;
+  color: #764ba2;
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
   font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  transition: background 0.2s, color 0.2s;
+}
+.options-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.options-success {
+  background: #eaffea;
+  color: #218838;
+  border: 1.5px solid #51cf66;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.options-error {
+  background: #fff0f0;
+  color: #d32f2f;
+  border: 1.5px solid #ff6b6b;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.options-hint {
+  margin-top: 16px;
+  font-size: 15px;
+  color: #e6e6ff;
+  opacity: 1;
+  font-weight: 400;
+}
+/* Кастомные чекбоксы */
+.options-block input[type="checkbox"] {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #bbb;
+  border-radius: 6px;
+  background: #fff;
+  margin-right: 10px;
+  position: relative;
+  vertical-align: middle;
+  transition: border 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.options-block input[type="checkbox"]:checked {
+  border-color: #764ba2;
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  box-shadow: 0 0 0 2px #764ba233;
+}
+.options-block input[type="checkbox"]:checked::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 7px;
+  height: 13px;
+  border: solid #4f46e5;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+.options-block label[for^="save-api-key-persistent"],
+.options-block label[for^="auto-save-history"],
+.options-block label[for^="auto-update"],
+.options-block label[for^="auto-save-history"],
+.options-block label[for^="auto-update"],
+.options-block label[for^="auto-save-history"] {
+  font-size: 16px;
+  color: #e0e0ff;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 2px 8px #e0e6f6;
-  transition: background 0.2s, box-shadow 0.2s;
-  margin-top: 16px;
 }
-
-.options-save-btn:hover {
-  background: linear-gradient(90deg, #8f6aff 0%, #6a8cff 100%);
-  box-shadow: 0 4px 16px #d0d8f6;
-}
-
-.options-save-btn:disabled {
-  background: #e0e6f6;
-  color: #aaa;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.options-success {
-  background: rgba(0, 255, 0, 0.1);
-  border: 1px solid rgba(0, 255, 0, 0.3);
-  border-radius: 8px;
-  padding: 12px;
-  margin: 10px 0;
-  color: #51cf66;
-  font-size: 14px;
-}
-
-.options-error {
-  background: rgba(255, 0, 0, 0.1);
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  border-radius: 8px;
-  padding: 12px;
-  margin: 10px 0;
-  color: #ff6b6b;
-  font-size: 14px;
-}
-
-.options-hint {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-top: 8px;
-  line-height: 1.4;
+/* Стандартный промпт */
+.options-block span {
+  color: #bbb;
+  font-weight: 500;
+  font-size: 15px;
 }
 
 .options-checkbox {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #764ba2;
+  border-radius: 6px;
+  background: #f8faff;
+  margin-right: 10px;
+  position: relative;
+  vertical-align: middle;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
   cursor: pointer;
+  box-shadow: 0 2px 8px #bbaaff33;
+  display: inline-block;
 }
-
+.options-checkbox:checked {
+  border-color: #4f46e5;
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  box-shadow: 0 0 0 2px #4f46e533, 0 2px 8px #bbaaff33;
+}
+.options-checkbox:checked::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 7px;
+  height: 13px;
+  border: solid #4f46e5;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+.options-checkbox:focus {
+  outline: 2px solid #a18cd1;
+  outline-offset: 2px;
+}
 .options-default-prompt {
-  font-size: 14px;
-  opacity: 0.9;
+  color: #f8faff;
+  font-weight: 600;
+  font-size: 15px;
+  text-shadow: 0 1px 4px #764ba2;
 } 
