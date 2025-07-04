@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Grensa.AI - Telegram Chat Summarizer",
+  "version": "1.0.0",
+  "description": "AI-powered Telegram chat summarizer that analyzes conversations and generates concise summaries using OpenAI, OpenRouter, or Gemini APIs.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://web.telegram.org/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.telegram.org/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Grensa.AI - Chat Summarizer"
+  },
+  "options_page": "index.html",
+  "icons": {
+    "16": "public/icon16.png",
+    "32": "public/icon32.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
+  }
+} 
