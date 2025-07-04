@@ -17,6 +17,16 @@ const App = () => {
     checkApiKey();
   }, []);
 
+  // Автоматически скрываем успешные сообщения через 5 секунд
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
   const checkApiKey = async () => {
     try {
       const hasKey = await new Promise((resolve) => {
@@ -75,11 +85,44 @@ const App = () => {
     }
   };
 
+  const closeMessage = (type) => {
+    if (type === 'error') {
+      setError('');
+    } else if (type === 'success') {
+      setSuccess('');
+    }
+  };
+
+  const MessageComponent = ({ message, type, onClose }) => {
+    if (!message) return null;
+    
+    return (
+      <div className={`grensa-window-${type}-message`}>
+        {message}
+        <button 
+          className="grensa-message-close" 
+          onClick={() => onClose(type)}
+          title="Закрыть"
+        >
+          ×
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="grensa-extension-container">
       <Title />
-      {error && <div className="grensa-window-error-message">{error}</div>}
-      {success && <div className="grensa-window-success-message">{success}</div>}
+      <MessageComponent 
+        message={error} 
+        type="error" 
+        onClose={closeMessage} 
+      />
+      <MessageComponent 
+        message={success} 
+        type="success" 
+        onClose={closeMessage} 
+      />
       {needsApiKey && (
         <div className="grensa-window-error-message">
           Для работы расширения необходимо настроить API ключ в настройках
