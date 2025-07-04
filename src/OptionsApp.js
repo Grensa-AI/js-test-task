@@ -30,6 +30,7 @@ export const OptionsApp = () => {
   const [activePrompt, setActivePrompt] = useState('default');
   const [showApiKey, setShowApiKey] = useState(false);
 
+  
   useEffect(() => {
     chrome.storage.local.get(['models', 'activeProvider', 'prompts', 'activePrompt'], (result) => {
       setModels(result.models || {});
@@ -45,18 +46,22 @@ export const OptionsApp = () => {
     });
   }, []);
 
+  
   useEffect(() => {
     chrome.storage.local.set({ models });
   }, [models]);
 
+  
   useEffect(() => {
     chrome.storage.session.set({ apiKeys });
   }, [apiKeys]);
 
+ 
   useEffect(() => {
     chrome.storage.local.set({ prompts, activePrompt });
   }, [prompts, activePrompt]);
 
+  
   useEffect(() => {
     if (success || error) {
       const timer = setTimeout(() => {
@@ -90,9 +95,11 @@ export const OptionsApp = () => {
     setLoading(true);
     setError('');
     setSuccess('');
+    
     const newModels = { ...models, [activeTab]: models[activeTab] || getDefaultModel(activeTab) };
     setModels(newModels);
     chrome.storage.local.set({ models: newModels }, () => {
+      
       const apiKey = apiKeys[activeTab] || '';
       const provider = activeTab;
       const model = newModels[activeTab];
@@ -163,6 +170,7 @@ export const OptionsApp = () => {
                       const arr = [...prompts];
                       arr[i] = e.target.value;
                       setPrompts(arr);
+                      
                       if (!e.target.value.trim() && activePrompt === String(i)) setActivePrompt('default');
                     }}
                     className="options-input"
