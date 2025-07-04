@@ -1,12 +1,17 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Title } from "./Components/Title/Title";
 import { Summary } from "./Components/Summary/Summary";
 import { useSummary } from "./hooks/useSummary";
+import { useHistory } from "./hooks/useHistory";
+import { History } from "./Components/History/History";
+import { Tabs } from "./Components/Tabs/Tabs";
+import { useTabs } from "./hooks/useTabs";
 import {
   STORAGE_KEY,
   CONTAINER_WIDTH,
   CONTAINER_MIN_HEIGHT,
+  RIGHT_OFFSET,
 } from "./config/constants";
 
 const AppContainer = styled.div`
@@ -23,14 +28,12 @@ const AppContainer = styled.div`
   position: fixed;
   top: ${(props) => props.$top}px;
   left: ${(props) => props.$left}px;
-  z-index: 10000;
+  z-index: 100;
   cursor: ${(props) => (props.$isDragging ? "grabbing" : "grab")};
   transition: ${(props) =>
     props.$isDragging ? "none" : "box-shadow 0.2s ease"};
-  overflow: hidden auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
 
   &:hover {
     box-shadow: ${(props) =>
@@ -40,14 +43,42 @@ const AppContainer = styled.div`
   }
 `;
 
+const ContentArea = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+`;
+
 const getDefaultPosition = () => ({
   top: 20,
-  left: Math.max(0, window.innerWidth - CONTAINER_WIDTH - 30),
+  left: Math.max(0, window.innerWidth - CONTAINER_WIDTH - RIGHT_OFFSET),
 });
 
 export const App = () => {
-  const { summary, isLoading, error, isConfigured, generateSummary } =
-    useSummary();
+  const {
+    summary,
+    isLoading,
+    error,
+    isConfigured,
+    generateSummary,
+    transcriptionInfo,
+    messagesInfo,
+  } = useSummary();
+
+  const {
+    history,
+    addToHistory,
+    removeItem,
+    clearHistory,
+    error: historyError,
+    clearError: clearHistoryError,
+  } = useHistory();
+
+  const { activeTab, switchToTab } = useTabs("summary");
+
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
+
   const [position, setPosition] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -63,24 +94,30 @@ export const App = () => {
         top: Math.min(parsed.top, maxTop),
         left: Math.min(parsed.left, maxLeft),
       };
-    } catch (_error) {
+    } catch (error) {
       return getDefaultPosition();
     }
   });
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const prevSummaryRef = useRef("");
 
   const savePosition = useCallback((newPosition) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newPosition));
     } catch (_error) {
-      //not critical
+      //не критично, не перехватываем
     }
   }, []);
 
   const handleMouseDown = (e) => {
-    if (e.target.tagName === "BUTTON" || e.target.closest("button")) {
+    if (
+      e.target.tagName === "BUTTON" ||
+      e.target.closest("button") ||
+      e.target.closest(".history-item") ||
+      e.target.closest(".tab-container")
+    ) {
       return;
     }
 
@@ -178,6 +215,77 @@ export const App = () => {
     }
   }, [generateSummary]);
 
+  const handleSelectHistoryItem = useCallback(
+    (item) => {
+      setSelectedHistoryItem(item);
+      switchToTab("summary");
+    },
+    [switchToTab]
+  );
+
+  const handleGenerateNewSummary = () => {
+    setSelectedHistoryItem(null);
+    generateSummary();
+  };
+
+  useEffect(() => {
+    if (
+      summary &&
+      summary !== prevSummaryRef.current &&
+      !isLoading &&
+      !error &&
+      !selectedHistoryItem
+    ) {
+      addToHistory(summary, messagesInfo, transcriptionInfo);
+      prevSummaryRef.current = summary;
+    }
+  }, [
+    summary,
+    isLoading,
+    error,
+    selectedHistoryItem,
+    addToHistory,
+    messagesInfo,
+    transcriptionInfo,
+  ]);
+
+  const currentSummary = selectedHistoryItem
+    ? selectedHistoryItem.summary
+    : summary;
+
+  const isShowingHistoryItem = Boolean(selectedHistoryItem);
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "history":
+        return (
+          <History
+            history={history}
+            onSelectSummary={handleSelectHistoryItem}
+            onClearHistory={clearHistory}
+            onRemoveItem={removeItem}
+            error={historyError}
+            onClearError={clearHistoryError}
+          />
+        );
+      case "summary":
+      default:
+        return (
+          <Summary
+            summary={currentSummary}
+            isLoading={isLoading && !isShowingHistoryItem}
+            error={error}
+            onRefresh={handleGenerateNewSummary}
+            isConfigured={isConfigured}
+            transcriptionInfo={transcriptionInfo}
+            historyError={historyError}
+            onClearHistoryError={clearHistoryError}
+            selectedHistoryItem={selectedHistoryItem}
+          />
+        );
+    }
+  };
+
   return (
     <AppContainer
       $top={position.top}
@@ -186,13 +294,12 @@ export const App = () => {
       onMouseDown={handleMouseDown}
     >
       <Title />
-      <Summary
-        summary={summary}
-        isLoading={isLoading}
-        error={error}
-        onRefresh={generateSummary}
-        isConfigured={isConfigured}
+      <Tabs
+        activeTab={activeTab}
+        onTabChange={switchToTab}
+        historyCount={history.length}
       />
+      <ContentArea>{renderTabContent()}</ContentArea>
     </AppContainer>
   );
 };
