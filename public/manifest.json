@@ -3,15 +3,31 @@
   "name": "Grensa.AI для Telegram",
   "version": "1.0.0",
   "description": "Анализ чатов Telegram и генерация резюме с помощью ИИ",
+  
   "permissions": [
     "activeTab",
     "storage",
     "tabs"
   ],
+  
   "host_permissions": [
     "https://web.telegram.org/*",
     "https://api.openai.com/*"
   ],
+  
+  "background": {
+    "service_worker": "static/js/background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["https://web.telegram.org/*"],
+      "js": ["static/js/content.js"],
+      "css": ["static/css/content.css"],
+      "run_at": "document_end"
+    }
+  ],
+  
   "action": {
     "default_title": "Grensa.AI - Анализ чатов",
     "default_icon": {
@@ -21,28 +37,20 @@
       "128": "icon128.png"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["https://web.telegram.org/*"],
-      "js": ["static/js/content.js"],
-      "css": ["static/css/content.css"],
-      "run_at": "document_end"
-    }
-  ],
-  "background": {
-    "service_worker": "static/js/background.js"
-  },
+  
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",
     "48": "icon48.png",
     "128": "icon128.png"
   },
+  
   "web_accessible_resources": [
     {
       "resources": ["static/js/*", "static/css/*"],
       "matches": ["https://web.telegram.org/*"]
     }
   ],
+  
   "options_page": "index.html"
 }
