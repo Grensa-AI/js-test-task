@@ -1,4 +1,4 @@
-/* Изолированные стили для окна расширения Grensa.AI */
+
 
 .grensa-window-root {
   position: fixed !important;
@@ -248,112 +248,70 @@
 }
 
 /* Стили для табов */
-.grensa-tabs {
-  display: flex;
-  background: #f3f4f6;
-  border-radius: 8px;
-  padding: 4px;
-  margin: 16px 0;
-  gap: 4px;
-}
-
-.grensa-tab {
-  flex: 1;
-  background: transparent;
+.grensa-tab-btn {
+  background: none;
   border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
+  padding: 8px 18px;
+  font-size: 16px;
   cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border-radius: 8px 8px 0 0;
+  color: #555;
+  transition: background 0.2s, color 0.2s;
+}
+.grensa-tab-btn.active-tab-btn {
+  background: #f0f4fa;
+  color: #2d4b8c;
+  font-weight: bold;
+  box-shadow: 0 2px 8px #e0e6f6;
+}
+.grensa-tab-btn:not(.active-tab-btn):hover {
+  background: #f7faff;
+  color: #2d4b8c;
 }
 
-.grensa-tab:hover {
-  color: #374151;
-  background: rgba(255, 255, 255, 0.5);
+/* Кастомный чекбокс */
+.grensa-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #6a8cff;
+  vertical-align: middle;
+  margin-right: 6px;
 }
 
-.grensa-tab.active {
-  background: white;
-  color: #111827;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.grensa-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 16px;
-  height: 2px;
-  background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
-  border-radius: 1px;
-}
-
-/* Адаптивность для вкладок на маленьких экранах */
-@media (max-width: 480px) {
-  .grensa-tab {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
-}
-
-/* Стили для контейнера настроек в popup */
-.grensa-settings-container {
-  max-height: 400px;
+/* Убираем двойной скролл */
+.grensa-window-content {
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-  margin: 16px 0;
+  max-height: 70vh;
+  min-height: 200px;
+  box-sizing: border-box;
+}
+body, html {
+  overflow: hidden !important;
 }
 
-.grensa-settings-container .options-fullscreen {
-  position: static;
-  width: auto;
-  height: auto;
-  background: transparent;
-  display: block;
-  overflow: visible;
+/* Карточки истории */
+.grensa-history-card {
+  border: 1px solid #e0e6f6;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px #f0f4fa;
+  padding: 14px 16px;
+  transition: box-shadow 0.2s;
+}
+.grensa-history-card:hover {
+  box-shadow: 0 4px 16px #e0e6f6;
 }
 
-.grensa-settings-container .options-tabs {
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.grensa-settings-container .options-content {
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-  margin-bottom: 0;
-  min-width: auto;
-  max-width: none;
-}
-
-.grensa-settings-container .options-block {
-  margin-bottom: 16px;
-}
-
-.grensa-settings-container .options-input {
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-}
-
-.grensa-settings-container .options-save-btn {
-  background: linear-gradient(90deg, #6a8cff 0%, #8f6aff 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-}
-
-.grensa-settings-container .options-save-btn:hover {
-  background: linear-gradient(90deg, #8f6aff 0%, #6a8cff 100%);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+.auto-save-history-row input[type="checkbox"] {
+  appearance: checkbox !important;
+  -webkit-appearance: checkbox !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  position: relative !important;
+  z-index: 2 !important;
+  background: #fff !important;
+  border: 1px solid #e0e0e0 !important;
+  margin-right: 8px !important;
+  width: 18px !important;
+  height: 18px !important;
 } 
