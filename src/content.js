@@ -269,6 +269,8 @@ class TelegramChatParser {
     btn.style.fontWeight = 'bold';
     btn.style.zIndex = '2147483647';
 
+    btn.innerHTML = '<span style="font-size:28px;font-weight:900;letter-spacing:-2px;line-height:1;user-select:none;">G</span>';
+
     // Drag & drop только по вертикали
     let isDragging = false, offsetY = 0;
     btn.addEventListener('mousedown', (e) => {

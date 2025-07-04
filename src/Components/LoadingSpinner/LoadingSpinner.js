@@ -35,7 +35,7 @@ const SpinnerContainer = styled.div`
 const Spinner = styled.div`
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top: 3px solid white;
+  border-top: 3px solid red;
   width: 30px;
   height: 30px;
   animation: ${spin} 1s linear infinite;
