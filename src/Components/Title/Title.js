@@ -19,7 +19,7 @@ const Logo = styled.div`
   justify-content: center;
   margin-right: 12px;
   font-weight: bold;
-  color: white;
+  color: #ffffff;
   font-size: 18px;
 `;
 
