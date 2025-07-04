@@ -20,17 +20,18 @@ const Text = styled.p`
   color: #6b7280;
   font-size: 14px;
   line-height: 1.5;
+  white-space: pre-wrap; // сохраняем переносы строк, если они есть в тексте
 `;
 
-export const Summary = () => {
+export const Summary = ({ text, loading }) => {
   return (
     <Container>
       <SummaryTitle>Резюме</SummaryTitle>
-      <Text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris.
-      </Text>
+      {loading ? (
+        <Text>⏳ Генерация резюме...</Text>
+      ) : (
+        <Text>{text || "Нет данных для отображения."}</Text>
+      )}
     </Container>
   );
 };

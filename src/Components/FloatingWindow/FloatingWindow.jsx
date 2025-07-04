@@ -16,7 +16,7 @@ const DraggableWindow = styled.div`
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 `;
 
-export const FloatingWindow = ({ onClose, onDrag }) => {
+export const FloatingWindow = ({ onClose, onDrag, summary, loading }) => {
   const startDrag = (e) => {
     const onMouseMove = (moveEvent) => {
       const newPos = {
@@ -44,7 +44,7 @@ export const FloatingWindow = ({ onClose, onDrag }) => {
         </button>
       </div>
       <Title />
-      <Summary />
+      <Summary text={summary} loading={loading} />
     </DraggableWindow>
   );
 };
