@@ -6,8 +6,9 @@ import {
   cacheSummary, 
   clearChatSummaryCache, 
   clearAllSummaryCache,
-  hasChatChanged 
+  hasCachedSummary 
 } from "../../utils/summaryCache";
+import { ContextSelector } from "../ContextSelector/ContextSelector";
 
 const Container = styled.div`
   padding: 16px;
@@ -16,6 +17,14 @@ const Container = styled.div`
   border-left: 4px solid #6366f1;
   min-height: 100px;
   color: #111827;
+  
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 8px;
+  }
   
   &.debug {
     border-left-color: #f59e0b;
@@ -31,6 +40,20 @@ const SummaryTitle = styled.h3`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  
+  @media (max-width: 480px) {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 14px;
+    margin-bottom: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const MessageCount = styled.span`
@@ -46,38 +69,14 @@ const ProviderInfo = styled.span`
   margin-left: 8px;
 `;
 
-const LimitedWarning = styled.div`
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin: 8px 0;
-  font-size: 12px;
-  color: #92400e !important;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-`;
-
-const CollectButton = styled.button`
-  background: #f59e0b;
-  color: white !important;
-  border: none;
+const ContextInfo = styled.div`
+  background: #e0e7ff;
+  border: 1px solid #c7d2fe;
   border-radius: 4px;
-  padding: 4px 8px;
+  padding: 8px;
+  margin: 8px 0;
   font-size: 11px;
-  cursor: pointer;
-  white-space: nowrap;
-  
-  &:hover {
-    background: #d97706;
-  }
-  
-  &:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-  }
+  color: #3730a3;
 `;
 
 const DebugBadge = styled.span`
@@ -91,16 +90,90 @@ const DebugBadge = styled.span`
   margin-left: 8px;
 `;
 
-const Text = styled.p`
-  margin: 0;
-  color: #6b7280 !important;
-  font-size: 14px;
-  line-height: 1.5;
-  white-space: pre-wrap;
+const CacheIndicator = styled.span`
+  background: #10b981;
+  color: white !important;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 8px;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   
-  .debug & {
-    color: #92400e !important;
+  @media (max-width: 480px) {
+    gap: 6px;
   }
+  
+  @media (max-width: 360px) {
+    gap: 4px;
+    width: 100%;
+  }
+`;
+
+const ActionButton = styled.button`
+  background: ${props => props.primary ? '#6366f1' : props.variant === 'context' ? '#8b5cf6' : 'white'};
+  color: ${props => props.primary || props.variant === 'context' ? 'white' : '#6b7280'} !important;
+  border: 1px solid ${props => props.primary ? '#6366f1' : props.variant === 'context' ? '#8b5cf6' : '#e5e7eb'};
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  
+  @media (max-width: 480px) {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 2px 4px;
+    font-size: 9px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  &:hover {
+    background: ${props => 
+      props.primary ? '#5856f0' : 
+      props.variant === 'context' ? '#7c3aed' : 
+      '#f3f4f6'
+    };
+    border-color: ${props => 
+      props.primary ? '#5856f0' : 
+      props.variant === 'context' ? '#7c3aed' : 
+      '#d1d5db'
+    };
+  }
+  
+  &:disabled {
+    background: #9ca3af;
+    color: white !important;
+    border-color: #9ca3af;
+    cursor: not-allowed;
+  }
+`;
+
+const Text = styled.div`
+  color: #374151 !important;
+  line-height: 1.6;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #6b7280 !important;
 `;
 
 const spin = keyframes`
@@ -109,29 +182,13 @@ const spin = keyframes`
 `;
 
 const LoadingSpinner = styled.div`
-  border: 2px solid #f3f4f6;
+  border: 2px solid #e5e7eb;
   border-top: 2px solid #6366f1;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   animation: ${spin} 1s linear infinite;
-  margin: 0 auto;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  color: #111827;
-`;
-
-const LoadingText = styled.p`
-  margin: 0;
-  color: #6b7280 !important;
-  font-size: 14px;
-  text-align: center;
+  margin-right: 8px;
 `;
 
 const ErrorContainer = styled.div`
@@ -139,194 +196,71 @@ const ErrorContainer = styled.div`
   border: 1px solid #fecaca;
   border-radius: 6px;
   padding: 12px;
-  margin: 8px 0;
-  color: #111827;
-`;
-
-const ErrorText = styled.p`
-  margin: 0;
   color: #dc2626 !important;
   font-size: 14px;
 `;
 
+const ErrorText = styled.div`
+  margin-bottom: 8px;
+`;
+
 const RetryButton = styled.button`
-  background: #6366f1;
+  background: #dc2626;
   color: white !important;
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
+  border-radius: 4px;
+  padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
-  margin-top: 8px;
   
   &:hover {
-    background: #5b56f0;
+    background: #b91c1c;
   }
   
   &:disabled {
     background: #9ca3af;
     cursor: not-allowed;
   }
-`;
-
-const RefreshButton = styled.button`
-  background: transparent;
-  color: #6366f1 !important;
-  border: 1px solid #6366f1;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  
-  &:hover {
-    background: #6366f1;
-    color: white !important;
-  }
-  
-  &:disabled {
-    background: #9ca3af;
-    color: white !important;
-    border-color: #9ca3af;
-    cursor: not-allowed;
-  }
-`;
-
-const CacheButton = styled.button`
-  background: transparent;
-  color: #dc2626 !important;
-  border: 1px solid #dc2626;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 4px;
-  
-  &:hover {
-    background: #dc2626;
-    color: white !important;
-  }
-  
-  &:disabled {
-    background: #9ca3af;
-    color: white !important;
-    border-color: #9ca3af;
-    cursor: not-allowed;
-  }
-`;
-
-const CacheIndicator = styled.span`
-  font-size: 10px;
-  color: #059669 !important;
-  background: #d1fae5;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 8px;
-  font-weight: 500;
 `;
 
 const EmptyState = styled.div`
   text-align: center;
-  padding: 20px;
   color: #6b7280 !important;
-  font-size: 14px;
-`;
-
-const DebugInfo = styled.div`
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 12px;
-  margin: 12px 0;
-  font-size: 12px;
-  color: #374151 !important;
-`;
-
-const DebugTitle = styled.h4`
-  margin: 0 0 8px 0;
-  color: #111827 !important;
-  font-size: 14px;
-  font-weight: 600;
-`;
-
-const DebugItem = styled.div`
-  margin: 4px 0;
-  color: #374151 !important;
-  
-  strong {
-    color: #111827 !important;
-  }
-`;
-
-const DebugCode = styled.pre`
-  background: #1f2937;
-  color: #f9fafb;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  overflow-x: auto;
-  margin: 8px 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-`;
-
-const ToggleButton = styled.button`
-  background: transparent;
-  color: #6366f1;
-  border: none;
-  font-size: 12px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-  margin: 4px 0;
-  
-  &:hover {
-    color: #5b56f0;
-  }
+  font-style: italic;
+  padding: 20px;
 `;
 
 export const Summary = ({ chatData, settings, onRefreshData }) => {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [lastChatTitle, setLastChatTitle] = useState(null);
-  const [showDebugDetails, setShowDebugDetails] = useState(false);
-  const [isCollecting, setIsCollecting] = useState(false);
+  const [lastChatId, setLastChatId] = useState(null);
+  const [showContextSelector, setShowContextSelector] = useState(false);
   const [isClearingCache, setIsClearingCache] = useState(false);
   const isGenerating = useRef(false);
 
-  // Load cached summary when chat data changes (aggressive caching)
+  // Load cached summary when chat changes
   useEffect(() => {
-    if (chatData && chatData.chatTitle !== lastChatTitle) {
-      console.log('Chat title changed, loading cached summary:', chatData.chatTitle);
-      loadCachedSummaryOrGenerate();
-      setLastChatTitle(chatData.chatTitle);
+    const currentChatId = chatData?.chatId || chatData?.chatTitle;
+    if (currentChatId && currentChatId !== lastChatId) {
+      console.log('Chat changed, loading cached summary:', currentChatId);
+      loadCachedSummary();
+      setLastChatId(currentChatId);
     }
-  }, [chatData?.chatTitle, lastChatTitle]);
+  }, [chatData?.chatId, chatData?.chatTitle, lastChatId]);
 
-  // Only check for cache when message count changes, don't auto-regenerate
+  // Clear summary when settings change
   useEffect(() => {
-    if (chatData && chatData.messages && lastChatTitle === chatData.chatTitle) {
-      console.log('Message count changed, checking cache:', chatData.messages.length);
-      // Only load from cache, don't auto-generate
-      loadCachedSummaryIfAvailable();
-    }
-  }, [chatData?.messages?.length, chatData?.chatTitle, lastChatTitle]);
-
-  // Clear summary when settings change (cache will be invalidated by provider/model change)
-  useEffect(() => {
-    if (settings && lastChatTitle && summary) {
+    if (settings && lastChatId && summary) {
       console.log('Settings changed, clearing current summary');
       setSummary(null);
       setError(null);
-      // Load from cache or show empty state
-      loadCachedSummaryIfAvailable();
+      loadCachedSummary();
     }
   }, [settings?.debugMode, settings?.apiKey, settings?.provider, settings?.model]);
 
-  // Load cached summary if available, otherwise generate new one
-  const loadCachedSummaryOrGenerate = async () => {
-    if (!chatData || !chatData.messages || chatData.messages.length === 0) {
-      console.log('No chat data or messages - clearing summary');
+  const loadCachedSummary = async () => {
+    if (!chatData) {
       setSummary(null);
       setError(null);
       return;
@@ -338,73 +272,37 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       return;
     }
 
-    console.log('Loading cached summary or generating new one');
-    setLoading(true);
-    setError(null);
-
     try {
-      // Try to get cached summary first
       const cachedSummary = await getCachedSummary(chatData, settings);
       
       if (cachedSummary) {
         console.log('Using cached summary');
         setSummary(cachedSummary);
         setError(null);
-        setLoading(false);
-        return;
-      }
-
-      // No cache available, generate new summary
-      console.log('No cache available, generating new summary');
-      await generateSummary();
-    } catch (err) {
-      console.error('Error loading cached summary:', err);
-      setError('Произошла ошибка при загрузке резюме');
-      setSummary(null);
-      setLoading(false);
-    }
-  };
-
-  // Load cached summary only (don't generate if not available)
-  const loadCachedSummaryIfAvailable = async () => {
-    if (!chatData || !chatData.messages || chatData.messages.length === 0) {
-      setSummary(null);
-      setError(null);
-      return;
-    }
-
-    if (!settings) {
-      return;
-    }
-
-    try {
-      const cachedSummary = await getCachedSummary(chatData, settings);
-      
-      if (cachedSummary) {
-        console.log('Using cached summary for updated chat');
-        setSummary(cachedSummary);
-        setError(null);
       } else {
-        console.log('No cached summary available for updated chat');
-        // Don't generate automatically - user needs to manually refresh
+        console.log('No cached summary available');
         setSummary(null);
         setError(null);
       }
     } catch (err) {
       console.error('Error loading cached summary:', err);
+      setError('Произошла ошибка при загрузке резюме');
+      setSummary(null);
     }
   };
 
-  const generateSummary = async (forceGenerate = false) => {
+  const generateSummary = async (contextData = null) => {
+    const dataToSummarize = contextData || chatData;
+    
     console.log('generateSummary called', { 
-      hasChat: !!chatData, 
-      hasMessages: !!chatData?.messages?.length, 
+      hasChat: !!dataToSummarize, 
+      hasMessages: !!dataToSummarize?.messages?.length, 
       hasSettings: !!settings,
       isGenerating: isGenerating.current,
-      forceGenerate
+      contextProvided: !!contextData
     });
 
-    if (!chatData || !chatData.messages || chatData.messages.length === 0) {
+    if (!dataToSummarize || !dataToSummarize.messages || dataToSummarize.messages.length === 0) {
       console.log('No chat data or messages - clearing summary');
       setSummary(null);
       setError(null);
@@ -429,15 +327,19 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     isGenerating.current = true;
 
     try {
-      const result = await generateChatSummary(chatData, settings);
+      const result = await generateChatSummary(dataToSummarize, settings);
       console.log('Summary generation result:', result);
       
       if (result.success) {
         setSummary(result);
         setError(null);
         
-        // Cache the new summary
-        await cacheSummary(chatData, settings, result);
+        // Cache the new summary (this will replace any existing summary for this chat)
+        const contextInfo = dataToSummarize.contextInfo || null;
+        await cacheSummary(chatData, settings, result, contextInfo);
+        
+        // Close context selector if it was open
+        setShowContextSelector(false);
       } else {
         setError(result.error);
         setSummary(null);
@@ -459,30 +361,35 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
 
   const handleRefresh = () => {
     console.log('Refresh button clicked - forcing summary regeneration');
-    // Force reset the generating flag to ensure refresh always works
-    isGenerating.current = false;
-    
-    // First refresh the chat data if the callback is available
+    generateSummary();
+  };
+
+  const handleSelectContext = () => {
+    setShowContextSelector(true);
+  };
+
+  const handleContextSelected = (contextData) => {
+    console.log('Context selected:', contextData);
+    generateSummary(contextData);
+  };
+
+  const handleCollectMore = (result) => {
+    console.log('Message collection completed:', result);
+    // Refresh data to show new messages
     if (onRefreshData) {
-      console.log('Refreshing chat data...');
       onRefreshData();
     }
-    
-    // Small delay to ensure state is properly reset
-    setTimeout(() => {
-      generateSummary(true); // Force generate new summary
-    }, 10);
   };
 
   const handleClearCache = async () => {
-    console.log('Clear cache button clicked');
-    setIsClearingCache(true);
+    if (!chatData) return;
     
+    setIsClearingCache(true);
     try {
       await clearChatSummaryCache(chatData);
       setSummary(null);
       setError(null);
-      console.log('Cache cleared for current chat');
+      console.log('Chat cache cleared successfully');
     } catch (error) {
       console.error('Error clearing cache:', error);
       setError('Ошибка при очистке кэша');
@@ -492,73 +399,18 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
   };
 
   const handleClearAllCache = async () => {
-    console.log('Clear all cache button clicked');
     setIsClearingCache(true);
-    
     try {
       await clearAllSummaryCache();
       setSummary(null);
       setError(null);
-      console.log('All cache cleared');
+      console.log('All cache cleared successfully');
     } catch (error) {
       console.error('Error clearing all cache:', error);
       setError('Ошибка при очистке всего кэша');
     } finally {
       setIsClearingCache(false);
     }
-  };
-
-  const handleCollectMessages = async () => {
-    console.log('Collect messages button clicked');
-    setIsCollecting(true);
-    
-    try {
-      // Call the content script function to collect more messages
-      if (window.collectMoreMessages) {
-        await window.collectMoreMessages();
-      }
-      
-      // Refresh the data after collection
-      if (onRefreshData) {
-        onRefreshData();
-      }
-    } catch (error) {
-      console.error('Error collecting messages:', error);
-    } finally {
-      setIsCollecting(false);
-    }
-  };
-
-  const renderDebugInfo = () => {
-    if (!summary?.debug || !summary?.debugInfo) return null;
-    
-    const { debugInfo } = summary;
-    
-    return (
-      <DebugInfo>
-        <DebugTitle>Информация отладки</DebugTitle>
-        <DebugItem><strong>Провайдер:</strong> {debugInfo.provider || 'Не указан'}</DebugItem>
-        <DebugItem><strong>Модель:</strong> {debugInfo.model || 'Не указана'}</DebugItem>
-        <DebugItem><strong>Base URL:</strong> {debugInfo.baseURL || 'Не указан'}</DebugItem>
-        <DebugItem><strong>API Key:</strong> {debugInfo.apiKey || 'Не установлен'}</DebugItem>
-        <DebugItem><strong>Сообщений:</strong> {debugInfo.messagesCount || 0}</DebugItem>
-        <DebugItem><strong>Чат:</strong> {debugInfo.chatTitle || 'Неизвестный чат'}</DebugItem>
-        
-        <ToggleButton onClick={() => setShowDebugDetails(!showDebugDetails)}>
-          {showDebugDetails ? 'Скрыть детали' : 'Показать детали'}
-        </ToggleButton>
-        
-        {showDebugDetails && (
-          <>
-            <DebugTitle style={{ marginTop: '12px' }}>Промпт:</DebugTitle>
-            <DebugCode>{debugInfo.prompt || 'Промпт не найден'}</DebugCode>
-            
-            <DebugTitle>API Payload:</DebugTitle>
-            <DebugCode>{debugInfo.apiPayload ? JSON.stringify(debugInfo.apiPayload, null, 2) : 'Payload не найден'}</DebugCode>
-          </>
-        )}
-      </DebugInfo>
-    );
   };
 
   // Show loading state
@@ -568,15 +420,10 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
         <SummaryTitle>
           Резюме
           {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
-          {chatData?.messages && (
-            <MessageCount>({chatData.messages.length} сообщений)</MessageCount>
-          )}
         </SummaryTitle>
         <LoadingContainer>
           <LoadingSpinner />
-          <LoadingText>
-            {settings?.debugMode ? 'Подготовка отладочной информации...' : 'Генерация резюме...'}
-          </LoadingText>
+          Генерируем резюме...
         </LoadingContainer>
       </Container>
     );
@@ -589,9 +436,6 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
         <SummaryTitle>
           Резюме
           {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
-          {chatData?.messages && (
-            <MessageCount>({chatData.messages.length} сообщений)</MessageCount>
-          )}
         </SummaryTitle>
         <ErrorContainer>
           <ErrorText>{error}</ErrorText>
@@ -621,6 +465,19 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     );
   }
 
+  // Show context selector if open
+  if (showContextSelector) {
+    return (
+      <ContextSelector
+        chatData={chatData}
+        onContextSelected={handleContextSelected}
+        onCollectMore={handleCollectMore}
+        isVisible={true}
+        onClose={() => setShowContextSelector(false)}
+      />
+    );
+  }
+
   // Show no cache state when chat has messages but no summary
   if (chatData && chatData.messages && chatData.messages.length > 0 && !summary && !loading && !error) {
     return (
@@ -628,22 +485,22 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
         <SummaryTitle>
           Резюме
           {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ButtonGroup>
             <MessageCount>
               ({chatData.messages.length} сообщений)
             </MessageCount>
-            <RefreshButton onClick={handleRefresh} disabled={loading || isClearingCache}>
+            <ActionButton variant="context" onClick={handleSelectContext}>
+              Выбрать контекст
+            </ActionButton>
+            <ActionButton primary onClick={handleRefresh} disabled={loading || isClearingCache}>
               Создать резюме
-            </RefreshButton>
-            <CacheButton onClick={handleClearAllCache} disabled={loading || isClearingCache}>
-              {isClearingCache ? 'Очистка...' : 'Очистить весь кэш'}
-            </CacheButton>
-          </div>
+            </ActionButton>
+          </ButtonGroup>
         </SummaryTitle>
         <EmptyState>
           {settings?.debugMode 
-            ? 'Нет кэшированного резюме. Нажмите "Создать резюме" для генерации.'
-            : 'Нет кэшированного резюме. Нажмите "Создать резюме" для генерации с помощью ИИ.'
+            ? 'Нет кэшированного резюме. Выберите контекст или создайте резюме для всех сообщений.'
+            : 'Нет резюме для этого чата. Выберите контекст или создайте резюме для всех сообщений.'
           }
         </EmptyState>
       </Container>
@@ -659,24 +516,31 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
           {summary.debug && <DebugBadge>Отладка</DebugBadge>}
           {summary.provider && <ProviderInfo>via {summary.provider}</ProviderInfo>}
           {summary.cached && <CacheIndicator>Кэш</CacheIndicator>}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ButtonGroup>
             <MessageCount>
-              ({summary.messagesCount} сообщений
-              {chatData?.cachedCount && chatData.cachedCount > 0 && (
-                <span style={{ color: '#f59e0b' }}>
-                  , {chatData.cachedCount} кэшированных
-                </span>
-              )}
-              )
+              ({summary.messagesCount || chatData?.messages?.length} сообщений)
             </MessageCount>
-            <RefreshButton onClick={handleRefresh} disabled={loading || isClearingCache}>
+            <ActionButton variant="context" onClick={handleSelectContext}>
+              Изменить контекст
+            </ActionButton>
+            <ActionButton onClick={handleRefresh} disabled={loading || isClearingCache}>
               Обновить
-            </RefreshButton>
-            <CacheButton onClick={handleClearCache} disabled={loading || isClearingCache}>
+            </ActionButton>
+            <ActionButton onClick={handleClearCache} disabled={loading || isClearingCache}>
               {isClearingCache ? 'Очистка...' : 'Очистить кэш'}
-            </CacheButton>
-          </div>
+            </ActionButton>
+          </ButtonGroup>
         </SummaryTitle>
+        
+        {summary.context && (
+          <ContextInfo>
+            Резюме создано для {summary.context.messageCount} сообщений 
+            из {summary.context.totalAvailable} доступных
+            {summary.context.selectedAt && (
+              <span> • {new Date(summary.context.selectedAt).toLocaleString('ru-RU')}</span>
+            )}
+          </ContextInfo>
+        )}
         
         <Text>{summary.summary}</Text>
         
@@ -685,37 +549,9 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
             Загружено из кэша: {new Date(summary.cachedAt).toLocaleString('ru-RU')}
           </div>
         )}
-        
-        {chatData?.isLimited && (
-          <LimitedWarning>
-            <span>⚠️ Показаны только видимые сообщения из-за виртуальной прокрутки Telegram</span>
-            <CollectButton 
-              onClick={handleCollectMessages} 
-              disabled={isCollecting}
-            >
-              {isCollecting ? 'Сбор...' : 'Собрать больше'}
-            </CollectButton>
-          </LimitedWarning>
-        )}
-        
-        {renderDebugInfo()}
       </Container>
     );
   }
 
-  // Default state
-  return (
-    <Container>
-      <SummaryTitle>
-        Резюме
-        {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
-      </SummaryTitle>
-      <Text>
-        {settings?.debugMode
-          ? 'Режим отладки включен. Нажмите на значок расширения для просмотра отладочной информации.'
-          : 'Нажмите на значок расширения, чтобы сгенерировать резюме текущего чата.'
-        }
-      </Text>
-    </Container>
-  );
+  return null;
 };

@@ -16,6 +16,16 @@ const Container = styled.div`
   color: #111827;
   max-height: 500px;
   overflow-y: auto;
+  
+  @media (max-width: 480px) {
+    padding: 12px;
+    max-height: 400px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 8px;
+    max-height: 300px;
+  }
 `;
 
 const HistoryTitle = styled.h3`
@@ -26,6 +36,16 @@ const HistoryTitle = styled.h3`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  
+  @media (max-width: 480px) {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
 `;
 
 const StatsContainer = styled.div`
@@ -47,6 +67,17 @@ const FilterContainer = styled.div`
   gap: 8px;
   margin-bottom: 16px;
   flex-wrap: wrap;
+  
+  @media (max-width: 480px) {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    gap: 4px;
+    margin-bottom: 8px;
+    flex-direction: column;
+  }
 `;
 
 const FilterSelect = styled.select`
@@ -102,6 +133,16 @@ const EntryTitle = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  
+  @media (max-width: 480px) {
+    font-size: 13px;
+    max-width: 150px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 12px;
+    max-width: 120px;
+  }
 `;
 
 const EntryMeta = styled.div`

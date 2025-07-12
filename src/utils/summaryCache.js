@@ -1,37 +1,17 @@
-// Summary cache utility for aggressive caching with manual invalidation
-// This helps reduce expensive API calls by storing summaries persistently
+// Chat-based summary cache utility - one summary per chat max
+// This new system allows context selection and replaces summaries when regenerated
 
 import { addSummaryToHistory } from './summaryHistory';
 
 const CACHE_KEYS = {
-  SUMMARIES: 'telegram_extension_summaries',
-  CACHE_METADATA: 'telegram_extension_cache_metadata'
+  CHAT_SUMMARIES: 'telegram_extension_chat_summaries',
+  CHAT_CONTEXTS: 'telegram_extension_chat_contexts'
 };
 
-// Generate a hash for message content to detect changes
-const generateContentHash = (messages) => {
-  if (!messages || messages.length === 0) return '';
-  
-  // Create a simple hash based on message content and count
-  const contentString = messages.map(msg => `${msg.text || ''}_${msg.direction || ''}`).join('|');
-  let hash = 0;
-  for (let i = 0; i < contentString.length; i++) {
-    const char = contentString.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return hash.toString();
-};
-
-// Generate cache key for a chat
-const generateCacheKey = (chatData) => {
-  if (!chatData || !chatData.chatTitle) return null;
-  
-  const chatId = chatData.chatId || chatData.chatTitle;
-  const messageCount = chatData.messages ? chatData.messages.length : 0;
-  const contentHash = generateContentHash(chatData.messages);
-  
-  return `${chatId}_${messageCount}_${contentHash}`;
+// Generate a simple chat identifier
+const generateChatId = (chatData) => {
+  if (!chatData) return null;
+  return chatData.chatId || chatData.chatTitle || null;
 };
 
 // Load cached summaries from storage
@@ -39,38 +19,39 @@ export const loadSummaryCache = async () => {
   try {
     // Try Chrome storage first
     if (chrome && chrome.storage && chrome.storage.local) {
-      const result = await chrome.storage.local.get([CACHE_KEYS.SUMMARIES, CACHE_KEYS.CACHE_METADATA]);
+      const result = await chrome.storage.local.get([CACHE_KEYS.CHAT_SUMMARIES, CACHE_KEYS.CHAT_CONTEXTS]);
       return {
-        summaries: result[CACHE_KEYS.SUMMARIES] || {},
-        metadata: result[CACHE_KEYS.CACHE_METADATA] || {}
+        summaries: result[CACHE_KEYS.CHAT_SUMMARIES] || {},
+        contexts: result[CACHE_KEYS.CHAT_CONTEXTS] || {}
       };
     }
     
     // Fallback to localStorage
-    const summaries = JSON.parse(localStorage.getItem(CACHE_KEYS.SUMMARIES) || '{}');
-    const metadata = JSON.parse(localStorage.getItem(CACHE_KEYS.CACHE_METADATA) || '{}');
+    const summaries = JSON.parse(localStorage.getItem(CACHE_KEYS.CHAT_SUMMARIES) || '{}');
+    const contexts = JSON.parse(localStorage.getItem(CACHE_KEYS.CHAT_CONTEXTS) || '{}');
     
-    return { summaries, metadata };
+    return { summaries, contexts };
   } catch (error) {
     console.error('Error loading summary cache:', error);
-    return { summaries: {}, metadata: {} };
+    return { summaries: {}, contexts: {} };
   }
 };
 
 // Save cached summaries to storage
-export const saveSummaryCache = async (summaries, metadata) => {
+export const saveSummaryCache = async (summaries, contexts) => {
   try {
     // Try Chrome storage first
     if (chrome && chrome.storage && chrome.storage.local) {
       await chrome.storage.local.set({
-        [CACHE_KEYS.SUMMARIES]: summaries,
-        [CACHE_KEYS.CACHE_METADATA]: metadata
+        [CACHE_KEYS.CHAT_SUMMARIES]: summaries,
+        [CACHE_KEYS.CHAT_CONTEXTS]: contexts
       });
-    } else {
-      // Fallback to localStorage
-      localStorage.setItem(CACHE_KEYS.SUMMARIES, JSON.stringify(summaries));
-      localStorage.setItem(CACHE_KEYS.CACHE_METADATA, JSON.stringify(metadata));
+      return;
     }
+    
+    // Fallback to localStorage
+    localStorage.setItem(CACHE_KEYS.CHAT_SUMMARIES, JSON.stringify(summaries));
+    localStorage.setItem(CACHE_KEYS.CHAT_CONTEXTS, JSON.stringify(contexts));
     
     console.log('Summary cache saved successfully');
   } catch (error) {
@@ -79,41 +60,34 @@ export const saveSummaryCache = async (summaries, metadata) => {
   }
 };
 
-// Get cached summary for chat data
+// Get cached summary for a chat
 export const getCachedSummary = async (chatData, settings) => {
   try {
-    const cacheKey = generateCacheKey(chatData);
-    if (!cacheKey) return null;
+    const chatId = generateChatId(chatData);
+    if (!chatId) return null;
     
-    const { summaries, metadata } = await loadSummaryCache();
+    const { summaries, contexts } = await loadSummaryCache();
     
-    // Check if we have a cached summary for this exact chat state
-    const cachedSummary = summaries[cacheKey];
+    const cachedSummary = summaries[chatId];
     if (!cachedSummary) return null;
     
     // Check if the cached summary matches current settings (provider, model, etc.)
-    const cachedMetadata = metadata[cacheKey];
-    if (cachedMetadata) {
-      const currentProvider = settings?.provider || 'openai';
-      const currentModel = settings?.model || 'gpt-4.1-nano';
-      
-      // If provider or model changed, invalidate cache
-      if (cachedMetadata.provider !== currentProvider || cachedMetadata.model !== currentModel) {
-        console.log('Cache invalidated due to provider/model change');
-        return null;
-      }
+    if (cachedSummary.provider !== (settings?.provider || 'openai') ||
+        cachedSummary.model !== (settings?.model || 'gpt-4.1-nano')) {
+      console.log('Cache invalidated due to provider/model change');
+      return null;
     }
     
-    // Add cache metadata to the summary
+    // Get context information
+    const context = contexts[chatId];
+    
     const summaryWithCache = {
       ...cachedSummary,
       cached: true,
-      cacheKey: cacheKey,
-      cachedAt: cachedMetadata?.cachedAt,
-      cacheHit: true
+      context: context || null
     };
     
-    console.log('Cache hit for chat:', chatData.chatTitle, 'Key:', cacheKey);
+    console.log('Cache hit for chat:', chatData.chatTitle, 'Chat ID:', chatId);
     return summaryWithCache;
   } catch (error) {
     console.error('Error getting cached summary:', error);
@@ -121,53 +95,58 @@ export const getCachedSummary = async (chatData, settings) => {
   }
 };
 
-// Cache a summary for chat data
-export const cacheSummary = async (chatData, settings, summaryResult) => {
+// Cache a summary for a chat (replaces any existing summary)
+export const cacheSummary = async (chatData, settings, summaryResult, contextInfo = null) => {
   try {
-    const cacheKey = generateCacheKey(chatData);
-    if (!cacheKey) return;
+    const chatId = generateChatId(chatData);
+    if (!chatId) return;
     
-    const { summaries, metadata } = await loadSummaryCache();
+    const { summaries, contexts } = await loadSummaryCache();
     
-    // Store the summary
-    summaries[cacheKey] = {
+    // Store the summary (replacing any existing one)
+    summaries[chatId] = {
       ...summaryResult,
-      cached: false // Mark as fresh when initially cached
-    };
-    
-    // Store metadata
-    metadata[cacheKey] = {
+      chatId: chatId,
       chatTitle: chatData.chatTitle,
-      chatId: chatData.chatId || chatData.chatTitle,
-      messageCount: chatData.messages ? chatData.messages.length : 0,
       cachedAt: new Date().toISOString(),
       provider: settings?.provider || 'openai',
       model: settings?.model || 'gpt-4.1-nano',
-      contentHash: generateContentHash(chatData.messages)
+      cached: false // Mark as fresh when initially cached
     };
     
-    // Clean up old cache entries (keep only last 50 entries)
-    const cacheEntries = Object.entries(metadata);
-    if (cacheEntries.length > 50) {
-      // Sort by cachedAt and keep only the most recent 50
-      const sortedEntries = cacheEntries.sort((a, b) => 
-        new Date(b[1].cachedAt) - new Date(a[1].cachedAt)
-      );
-      
-      const keysToKeep = sortedEntries.slice(0, 50).map(([key]) => key);
-      const keysToRemove = sortedEntries.slice(50).map(([key]) => key);
-      
-      // Remove old entries
-      keysToRemove.forEach(key => {
-        delete summaries[key];
-        delete metadata[key];
-      });
-      
-      console.log(`Cleaned up ${keysToRemove.length} old cache entries`);
+    // Store context information if provided
+    if (contextInfo) {
+      contexts[chatId] = {
+        ...contextInfo,
+        chatId: chatId,
+        chatTitle: chatData.chatTitle,
+        updatedAt: new Date().toISOString()
+      };
     }
     
-    await saveSummaryCache(summaries, metadata);
-    console.log('Summary cached successfully for chat:', chatData.chatTitle, 'Key:', cacheKey);
+    // Clean up old cache entries (keep only last 100 chats)
+    const chatIds = Object.keys(summaries);
+    if (chatIds.length > 100) {
+      // Sort by cachedAt and keep only the most recent
+      const sortedEntries = chatIds.map(id => ({
+        id,
+        cachedAt: summaries[id].cachedAt
+      })).sort((a, b) => new Date(b.cachedAt) - new Date(a.cachedAt));
+      
+      const idsToKeep = sortedEntries.slice(0, 100).map(entry => entry.id);
+      const idsToRemove = sortedEntries.slice(100).map(entry => entry.id);
+      
+      // Remove old entries
+      idsToRemove.forEach(id => {
+        delete summaries[id];
+        delete contexts[id];
+      });
+      
+      console.log(`Cleaned up ${idsToRemove.length} old cache entries`);
+    }
+    
+    await saveSummaryCache(summaries, contexts);
+    console.log('Summary cached successfully for chat:', chatData.chatTitle, 'Chat ID:', chatId);
     
     // Add to history if this is a new summary (not from cache)
     if (!summaryResult.cached) {
@@ -184,7 +163,7 @@ export const cacheSummary = async (chatData, settings, summaryResult) => {
   }
 };
 
-// Clear all cached summaries
+// Clear all summary cache
 export const clearAllSummaryCache = async () => {
   try {
     await saveSummaryCache({}, {});
@@ -198,16 +177,16 @@ export const clearAllSummaryCache = async () => {
 // Clear cached summary for specific chat
 export const clearChatSummaryCache = async (chatData) => {
   try {
-    const cacheKey = generateCacheKey(chatData);
-    if (!cacheKey) return;
+    const chatId = generateChatId(chatData);
+    if (!chatId) return;
     
-    const { summaries, metadata } = await loadSummaryCache();
+    const { summaries, contexts } = await loadSummaryCache();
     
-    delete summaries[cacheKey];
-    delete metadata[cacheKey];
+    delete summaries[chatId];
+    delete contexts[chatId];
     
-    await saveSummaryCache(summaries, metadata);
-    console.log('Cache cleared for chat:', chatData.chatTitle, 'Key:', cacheKey);
+    await saveSummaryCache(summaries, contexts);
+    console.log('Cache cleared for chat:', chatData.chatTitle, 'Chat ID:', chatId);
   } catch (error) {
     console.error('Error clearing chat cache:', error);
     throw error;
@@ -217,19 +196,19 @@ export const clearChatSummaryCache = async (chatData) => {
 // Get cache statistics
 export const getCacheStats = async () => {
   try {
-    const { summaries, metadata } = await loadSummaryCache();
+    const { summaries, contexts } = await loadSummaryCache();
     
     const totalEntries = Object.keys(summaries).length;
-    const totalSize = JSON.stringify(summaries).length + JSON.stringify(metadata).length;
+    const totalSize = JSON.stringify(summaries).length + JSON.stringify(contexts).length;
     
     // Get cache entries by recency
-    const entries = Object.entries(metadata).map(([key, meta]) => ({
-      key,
-      chatTitle: meta.chatTitle,
-      messageCount: meta.messageCount,
-      cachedAt: meta.cachedAt,
-      provider: meta.provider,
-      model: meta.model
+    const entries = Object.entries(summaries).map(([chatId, summary]) => ({
+      chatId,
+      chatTitle: summary.chatTitle,
+      cachedAt: summary.cachedAt,
+      provider: summary.provider,
+      model: summary.model,
+      hasContext: !!contexts[chatId]
     })).sort((a, b) => new Date(b.cachedAt) - new Date(a.cachedAt));
     
     return {
@@ -247,27 +226,52 @@ export const getCacheStats = async () => {
   }
 };
 
-// Check if chat content has changed since last cache
-export const hasChatChanged = async (chatData) => {
+// Check if chat has a cached summary
+export const hasCachedSummary = async (chatData) => {
   try {
-    const cacheKey = generateCacheKey(chatData);
-    if (!cacheKey) return true;
+    const chatId = generateChatId(chatData);
+    if (!chatId) return false;
     
-    const { metadata } = await loadSummaryCache();
-    const cachedMetadata = metadata[cacheKey];
-    
-    if (!cachedMetadata) return true;
-    
-    // Compare message count and content hash
-    const currentMessageCount = chatData.messages ? chatData.messages.length : 0;
-    const currentContentHash = generateContentHash(chatData.messages);
-    
-    return (
-      cachedMetadata.messageCount !== currentMessageCount ||
-      cachedMetadata.contentHash !== currentContentHash
-    );
+    const { summaries } = await loadSummaryCache();
+    return !!summaries[chatId];
   } catch (error) {
-    console.error('Error checking if chat changed:', error);
-    return true;
+    console.error('Error checking cached summary:', error);
+    return false;
+  }
+};
+
+// Get context information for a chat
+export const getChatContext = async (chatData) => {
+  try {
+    const chatId = generateChatId(chatData);
+    if (!chatId) return null;
+    
+    const { contexts } = await loadSummaryCache();
+    return contexts[chatId] || null;
+  } catch (error) {
+    console.error('Error getting chat context:', error);
+    return null;
+  }
+};
+
+// Save context information for a chat
+export const saveChatContext = async (chatData, contextInfo) => {
+  try {
+    const chatId = generateChatId(chatData);
+    if (!chatId) return;
+    
+    const { summaries, contexts } = await loadSummaryCache();
+    
+    contexts[chatId] = {
+      ...contextInfo,
+      chatId: chatId,
+      chatTitle: chatData.chatTitle,
+      updatedAt: new Date().toISOString()
+    };
+    
+    await saveSummaryCache(summaries, contexts);
+    console.log('Context saved for chat:', chatData.chatTitle, 'Chat ID:', chatId);
+  } catch (error) {
+    console.error('Error saving chat context:', error);
   }
 }; 

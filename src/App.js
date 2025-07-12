@@ -7,22 +7,37 @@ import { History } from "./Components/History/History";
 import { loadSettings, saveSettings } from "./utils/storage";
 
 const AppContainer = styled.div`
-  width: 400px;
+  width: 100%;
+  min-width: 320px;
+  max-width: 420px;
   height: auto;
-  max-height: 500px;
+  max-height: 600px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 16px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   overflow-y: auto;
   color: #111827 !important;
+  box-sizing: border-box;
+  
+  /* Responsive padding */
+  @media (max-width: 480px) {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 8px;
+    min-width: 300px;
+  }
   
   /* Ensure all text elements have dark color */
   * {
     color: inherit;
+    box-sizing: border-box;
   }
   
   /* Override any potential white text */
@@ -43,6 +58,19 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 8px;
   z-index: 1000;
+  flex-wrap: wrap;
+  
+  @media (max-width: 480px) {
+    top: 12px;
+    right: 12px;
+    gap: 6px;
+  }
+  
+  @media (max-width: 360px) {
+    top: 8px;
+    right: 8px;
+    gap: 4px;
+  }
 `;
 
 const ControlButton = styled.button`
@@ -54,6 +82,17 @@ const ControlButton = styled.button`
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
+  
+  @media (max-width: 480px) {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 3px 5px;
+    font-size: 11px;
+  }
   
   &:hover {
     background: #f3f4f6;
@@ -90,11 +129,78 @@ const LoadingContainer = styled.div`
   color: #6b7280 !important;
 `;
 
+const StatusBar = styled.div`
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  
+  @media (max-width: 480px) {
+    padding: 6px 8px;
+    font-size: 11px;
+    gap: 6px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 4px 6px;
+    font-size: 10px;
+    gap: 4px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+const StatusInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
+  
+  @media (max-width: 360px) {
+    gap: 6px;
+  }
+`;
+
+const StatusItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  
+  @media (max-width: 360px) {
+    gap: 3px;
+  }
+`;
+
+const StatusIndicator = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${props => 
+    props.status === 'active' ? '#10b981' : 
+    props.status === 'warning' ? '#f59e0b' : 
+    '#6b7280'
+  };
+`;
+
 export const App = ({ chatData, onRefreshData }) => {
   const [settings, setSettings] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [appStats, setAppStats] = useState(null);
 
   // Load settings on component mount
   useEffect(() => {
@@ -112,6 +218,24 @@ export const App = ({ chatData, onRefreshData }) => {
 
     initializeSettings();
   }, []);
+
+  // Update app statistics when chat data changes
+  useEffect(() => {
+    if (chatData) {
+      const stats = {
+        chatTitle: chatData.chatTitle || 'Unknown Chat',
+        messageCount: chatData.messages?.length || 0,
+        cachedCount: chatData.cachedCount || 0,
+        isLimited: chatData.isLimited || false,
+        hasStats: !!chatData.stats,
+        totalWords: chatData.stats?.totalWords || 0,
+        dateRange: chatData.stats?.dateRange || null
+      };
+      setAppStats(stats);
+    } else {
+      setAppStats(null);
+    }
+  }, [chatData]);
 
   const handleSaveSettings = async (newSettings) => {
     try {
@@ -136,6 +260,13 @@ export const App = ({ chatData, onRefreshData }) => {
   const handleToggleHistory = () => {
     setShowHistory(!showHistory);
     setShowSettings(false); // Close settings when opening history
+  };
+
+  const handleRefreshData = () => {
+    console.log('App: Refreshing data...');
+    if (onRefreshData) {
+      onRefreshData();
+    }
   };
 
   // Don't render until settings are loaded
@@ -163,6 +294,40 @@ export const App = ({ chatData, onRefreshData }) => {
         
         <Title chatTitle={chatData?.chatTitle} />
         
+        {/* Status bar showing current state */}
+        {appStats && (
+          <StatusBar>
+            <StatusInfo>
+              <StatusItem>
+                <StatusIndicator status={appStats.messageCount > 0 ? 'active' : 'warning'} />
+                <span>{appStats.messageCount} сообщений</span>
+              </StatusItem>
+              {appStats.cachedCount > 0 && (
+                <StatusItem>
+                  <StatusIndicator status="active" />
+                  <span>{appStats.cachedCount} в кэше</span>
+                </StatusItem>
+              )}
+              {appStats.totalWords > 0 && (
+                <StatusItem>
+                  <span>{appStats.totalWords.toLocaleString()} слов</span>
+                </StatusItem>
+              )}
+              {appStats.isLimited && (
+                <StatusItem>
+                  <StatusIndicator status="warning" />
+                  <span>Ограниченный просмотр</span>
+                </StatusItem>
+              )}
+            </StatusInfo>
+            {settings?.debugMode && (
+              <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: '500' }}>
+                РЕЖИМ ОТЛАДКИ
+              </div>
+            )}
+          </StatusBar>
+        )}
+        
         <Settings 
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
@@ -175,7 +340,11 @@ export const App = ({ chatData, onRefreshData }) => {
           onClose={() => setShowHistory(false)}
         />
         
-        <Summary chatData={chatData} settings={settings} onRefreshData={onRefreshData} />
+        <Summary 
+          chatData={chatData} 
+          settings={settings} 
+          onRefreshData={handleRefreshData} 
+        />
       </AppContent>
     </AppContainer>
   );

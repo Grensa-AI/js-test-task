@@ -10,6 +10,16 @@ const SettingsContainer = styled.div`
   border: 1px solid #e5e7eb;
   margin-bottom: 16px;
   color: #111827;
+  
+  @media (max-width: 480px) {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 8px;
+    margin-bottom: 8px;
+  }
 `;
 
 const SettingsTitle = styled.h3`
@@ -20,6 +30,16 @@ const SettingsTitle = styled.h3`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  
+  @media (max-width: 480px) {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -152,6 +172,18 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: 8px;
   margin-top: 16px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 480px) {
+    gap: 6px;
+    margin-top: 12px;
+  }
+  
+  @media (max-width: 360px) {
+    gap: 4px;
+    margin-top: 8px;
+    flex-direction: column;
+  }
 `;
 
 const Button = styled.button`
@@ -161,6 +193,16 @@ const Button = styled.button`
   font-size: 14px;
   cursor: pointer;
   font-weight: 500;
+  
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
   
   &:disabled {
     opacity: 0.6;
