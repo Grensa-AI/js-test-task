@@ -1,11 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const Header = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  padding-bottom: 16px;
+  padding-bottom: 48px;
   border-bottom: 1px solid #e5e7eb;
   color: #111827;
   
@@ -92,11 +93,13 @@ const ChatTitle = styled.p`
 `;
 
 export const Title = ({ chatTitle }) => {
+  const { t } = useTranslation();
+  
   return (
     <Header>
       <Logo>G</Logo>
       <TitleContainer>
-        <TitleText>Grensa.AI</TitleText>
+        <TitleText>{t('appTitle')}</TitleText>
         {chatTitle && <ChatTitle>{chatTitle}</ChatTitle>}
       </TitleContainer>
     </Header>

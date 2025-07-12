@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
+import i18nInstance from "./i18n";
 import { Title } from "./Components/Title/Title";
 import { Summary } from "./Components/Summary/Summary";
 import { Settings } from "./Components/Settings/Settings";
@@ -10,8 +12,7 @@ const AppContainer = styled.div`
   width: 100%;
   min-width: 320px;
   max-width: 420px;
-  height: auto;
-  max-height: 600px;
+  height: 600px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -56,9 +57,10 @@ const ButtonContainer = styled.div`
   top: 16px;
   right: 16px;
   display: flex;
+  flex-direction: column;
   gap: 8px;
   z-index: 1000;
-  flex-wrap: wrap;
+  align-items: flex-end;
   
   @media (max-width: 480px) {
     top: 12px;
@@ -71,6 +73,24 @@ const ButtonContainer = styled.div`
     right: 8px;
     gap: 4px;
   }
+`;
+
+const MainButtonRow = styled.div`
+  display: flex;
+  gap: 8px;
+  
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
+  
+  @media (max-width: 360px) {
+    gap: 4px;
+  }
+`;
+
+const LanguageButtonRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const ControlButton = styled.button`
@@ -196,6 +216,14 @@ const StatusIndicator = styled.div`
 `;
 
 export const App = ({ chatData, onRefreshData }) => {
+  const { t, i18n } = useTranslation();
+  
+  // Debug log to check i18n instance
+  useEffect(() => {
+    console.log('i18n instance:', i18n);
+    console.log('i18n.changeLanguage:', typeof i18n?.changeLanguage);
+  }, [i18n]);
+  
   const [settings, setSettings] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -269,12 +297,31 @@ export const App = ({ chatData, onRefreshData }) => {
     }
   };
 
+  const toggleLanguage = () => {
+    try {
+      const currentLang = i18nInstance.language || 'en';
+      const newLang = currentLang === 'en' ? 'ru' : 'en';
+      
+      console.log('Changing language from', currentLang, 'to', newLang);
+      console.log('i18nInstance:', i18nInstance);
+      console.log('i18nInstance.changeLanguage:', typeof i18nInstance.changeLanguage);
+      
+      if (i18nInstance && typeof i18nInstance.changeLanguage === 'function') {
+        i18nInstance.changeLanguage(newLang);
+      } else {
+        console.error('i18nInstance.changeLanguage is not available');
+      }
+    } catch (error) {
+      console.error('Error changing language:', error);
+    }
+  };
+
   // Don't render until settings are loaded
   if (!settingsLoaded) {
     return (
       <AppContainer>
         <LoadingContainer>
-          Загрузка...
+          {t('loading')}
         </LoadingContainer>
       </AppContainer>
     );
@@ -284,12 +331,19 @@ export const App = ({ chatData, onRefreshData }) => {
     <AppContainer>
       <AppContent>
         <ButtonContainer>
-          <ControlButton onClick={handleToggleSettings}>
-            ⚙️ Настройки
-          </ControlButton>
-          <ControlButton className="history" onClick={handleToggleHistory}>
-            📚 История
-          </ControlButton>
+          <MainButtonRow>
+            <ControlButton onClick={handleToggleSettings}>
+              {t('settings')}
+            </ControlButton>
+            <ControlButton className="history" onClick={handleToggleHistory}>
+              {t('history')}
+            </ControlButton>
+          </MainButtonRow>
+          <LanguageButtonRow>
+            <ControlButton onClick={toggleLanguage}>
+              {(i18nInstance.language || 'en') === 'en' ? '🇷🇺 RU' : '🇺🇸 EN'}
+            </ControlButton>
+          </LanguageButtonRow>
         </ButtonContainer>
         
         <Title chatTitle={chatData?.chatTitle} />
@@ -300,29 +354,29 @@ export const App = ({ chatData, onRefreshData }) => {
             <StatusInfo>
               <StatusItem>
                 <StatusIndicator status={appStats.messageCount > 0 ? 'active' : 'warning'} />
-                <span>{appStats.messageCount} сообщений</span>
+                <span>{appStats.messageCount} {t('messages')}</span>
               </StatusItem>
               {appStats.cachedCount > 0 && (
                 <StatusItem>
                   <StatusIndicator status="active" />
-                  <span>{appStats.cachedCount} в кэше</span>
+                  <span>{appStats.cachedCount} {t('cached')}</span>
                 </StatusItem>
               )}
               {appStats.totalWords > 0 && (
                 <StatusItem>
-                  <span>{appStats.totalWords.toLocaleString()} слов</span>
+                  <span>{appStats.totalWords.toLocaleString()} {t('words')}</span>
                 </StatusItem>
               )}
               {appStats.isLimited && (
                 <StatusItem>
                   <StatusIndicator status="warning" />
-                  <span>Ограниченный просмотр</span>
+                  <span>{t('limitedView')}</span>
                 </StatusItem>
               )}
             </StatusInfo>
             {settings?.debugMode && (
               <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: '500' }}>
-                РЕЖИМ ОТЛАДКИ
+                {t('debugMode')}
               </div>
             )}
           </StatusBar>

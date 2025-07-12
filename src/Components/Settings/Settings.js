@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import { PROVIDERS } from "../../utils/openai";
 import { getCacheStats, clearAllSummaryCache } from "../../utils/summaryCache";
 
@@ -295,6 +296,7 @@ const CacheButton = styled(Button)`
 `;
 
 export const Settings = ({ isOpen, onClose, settings, onSave }) => {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState('openai');
   const [debugMode, setDebugMode] = useState(false);
@@ -340,9 +342,9 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
       };
       
       await onSave(newSettings);
-      setStatus({ type: 'success', message: 'Настройки сохранены!' });
+      setStatus({ type: 'success', message: t('settingsSaved') });
     } catch (error) {
-      setStatus({ type: 'error', message: 'Ошибка при сохранении настроек' });
+      setStatus({ type: 'error', message: t('settingsError') });
     } finally {
       setLoading(false);
     }
@@ -368,9 +370,9 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
     try {
       await clearAllSummaryCache();
       await loadCacheStats(); // Reload stats
-      setStatus({ type: 'success', message: 'Весь кэш очищен!' });
+      setStatus({ type: 'success', message: t('cacheCleared') });
     } catch (error) {
-      setStatus({ type: 'error', message: 'Ошибка при очистке кэша' });
+      setStatus({ type: 'error', message: t('cacheClearError') });
     } finally {
       setClearingCache(false);
     }
@@ -391,7 +393,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
   return (
     <SettingsContainer>
       <SettingsTitle>
-        Настройки
+        {t('settingsTitle')}
         <CloseButton onClick={onClose}>×</CloseButton>
       </SettingsTitle>
       
@@ -402,7 +404,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
       )}
       
       <FormGroup>
-        <Label htmlFor="provider">AI Провайдер</Label>
+        <Label htmlFor="provider">{t('aiProvider')}</Label>
         <Select
           id="provider"
           value={provider}
@@ -415,7 +417,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
           ))}
         </Select>
         <HelpText>
-          Выберите провайдера AI для генерации резюме
+          {t('selectProvider')}
         </HelpText>
       </FormGroup>
       
@@ -431,7 +433,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
           autoComplete="off"
         />
         <HelpText>
-          Получите API ключ на{' '}
+          {t('getApiKey')}{' '}
           <a 
             href={currentProvider.helpUrl} 
             target="_blank" 
@@ -455,11 +457,11 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
             }}
           />
           <CheckboxLabel htmlFor="debugMode">
-            Режим отладки (текущее состояние: {debugMode ? 'включен' : 'выключен'})
+            {t('debugModeLabel')}
           </CheckboxLabel>
         </CheckboxContainer>
         <HelpText>
-          В режиме отладки будет показан запрос к API без его выполнения
+          {t('enableDebugMode')}
         </HelpText>
       </FormGroup>
 
@@ -468,30 +470,30 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
           onClick={handleSave} 
           disabled={loading}
         >
-          {loading ? 'Сохранение...' : 'Сохранить'}
+          {loading ? t('settingsSaved') : t('saveSettings')}
         </SaveButton>
         <ClearButton 
           onClick={handleClear}
           disabled={loading}
         >
-          Очистить
+          {t('clearSettings')}
         </ClearButton>
       </ButtonGroup>
 
       <CacheSection>
-        <Label>Управление кэшем резюме</Label>
+        <Label>{t('cacheStatistics')}</Label>
         <HelpText style={{ marginBottom: '12px' }}>
-          Кэш позволяет избежать повторных дорогостоящих API-запросов. Резюме кэшируются автоматически и загружаются мгновенно.
+          {t('cacheStatistics')}
         </HelpText>
         
         {cacheStats && (
           <CacheStats>
             <CacheStatsItem>
-              <span>Кэшированных резюме:</span>
+              <span>{t('totalEntries')}:</span>
               <strong>{cacheStats.totalEntries}</strong>
             </CacheStatsItem>
             <CacheStatsItem>
-              <span>Размер кэша:</span>
+              <span>{t('totalSize')}:</span>
               <strong>{formatBytes(cacheStats.totalSize)}</strong>
             </CacheStatsItem>
             {cacheStats.entries.length > 0 && (
@@ -508,7 +510,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
             onClick={handleClearAllCache} 
             disabled={clearingCache || loading}
           >
-            {clearingCache ? 'Очистка...' : 'Очистить весь кэш'}
+            {clearingCache ? t('clearingCache') : t('clearCache')}
           </CacheButton>
         </ButtonGroup>
       </CacheSection>

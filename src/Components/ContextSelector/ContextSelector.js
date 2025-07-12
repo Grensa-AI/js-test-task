@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const Container = styled.div`
   background: #f8f9fa;
@@ -42,6 +43,7 @@ const StatsContainer = styled.div`
     gap: 6px;
     margin-bottom: 12px;
     font-size: 11px;
+    grid-template-columns: 1fr;
   }
   
   @media (max-width: 360px) {
@@ -58,11 +60,33 @@ const StatItem = styled.div`
   border-radius: 4px;
   border: 1px solid #e5e7eb;
   text-align: center;
+  min-width: 0;
+  overflow: hidden;
+  
+  @media (max-width: 480px) {
+    padding: 6px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 4px;
+  }
 `;
 
 const StatLabel = styled.div`
   font-weight: 500;
   color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  
+  @media (max-width: 480px) {
+    font-size: 10px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 9px;
+  }
 `;
 
 const StatValue = styled.div`
@@ -70,6 +94,14 @@ const StatValue = styled.div`
   font-weight: 600;
   color: #111827;
   margin-top: 2px;
+  
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 12px;
+  }
 `;
 
 const RangeContainer = styled.div`
@@ -150,15 +182,21 @@ const PresetButton = styled.button`
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
   
   @media (max-width: 480px) {
     padding: 3px 6px;
     font-size: 10px;
+    max-width: 100px;
   }
   
   @media (max-width: 360px) {
     padding: 2px 4px;
     font-size: 9px;
+    max-width: 80px;
   }
   
   &:hover {
@@ -227,6 +265,10 @@ const ActionButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
   
   @media (max-width: 480px) {
     padding: 6px 8px;
@@ -289,6 +331,7 @@ export const ContextSelector = ({
   isVisible = false,
   onClose 
 }) => {
+  const { t } = useTranslation();
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(0);
   const [activePreset, setActivePreset] = useState(null);
@@ -345,14 +388,14 @@ export const ContextSelector = ({
     if (!totalMessages) return [];
     
     return [
-      { name: 'Последние 10', start: Math.max(0, totalMessages - 10), end: totalMessages - 1 },
-      { name: 'Последние 25', start: Math.max(0, totalMessages - 25), end: totalMessages - 1 },
-      { name: 'Последние 50', start: Math.max(0, totalMessages - 50), end: totalMessages - 1 },
-      { name: 'Все сообщения', start: 0, end: totalMessages - 1 },
-      { name: 'Только входящие', start: 0, end: totalMessages - 1, filter: 'incoming' },
-      { name: 'Только исходящие', start: 0, end: totalMessages - 1, filter: 'outgoing' }
+      { name: t('last10'), start: Math.max(0, totalMessages - 10), end: totalMessages - 1 },
+      { name: t('last25'), start: Math.max(0, totalMessages - 25), end: totalMessages - 1 },
+      { name: t('last50'), start: Math.max(0, totalMessages - 50), end: totalMessages - 1 },
+      { name: t('selectAll'), start: 0, end: totalMessages - 1 },
+      { name: t('incomingOnly'), start: 0, end: totalMessages - 1, filter: 'incoming' },
+      { name: t('outgoingOnly'), start: 0, end: totalMessages - 1, filter: 'outgoing' }
     ];
-  }, [totalMessages]);
+  }, [totalMessages, t]);
 
   const handlePresetClick = (preset) => {
     setStartIndex(preset.start);
@@ -419,7 +462,7 @@ export const ContextSelector = ({
   return (
     <Container>
       <Title>
-        Выбор контекста для резюме
+        {t('selectContext')}
         <button 
           onClick={onClose}
           style={{ 
@@ -437,19 +480,19 @@ export const ContextSelector = ({
       {chatData?.stats && (
         <StatsContainer>
           <StatItem>
-            <StatLabel>Всего сообщений</StatLabel>
+            <StatLabel>{t('totalMessages')}</StatLabel>
             <StatValue>{chatData.stats.totalMessages}</StatValue>
           </StatItem>
           <StatItem>
-            <StatLabel>Общее кол-во слов</StatLabel>
+            <StatLabel>{t('totalWords')}</StatLabel>
             <StatValue>{chatData.stats.totalWords}</StatValue>
           </StatItem>
           <StatItem>
-            <StatLabel>Входящие</StatLabel>
+            <StatLabel>{t('incoming')}</StatLabel>
             <StatValue>{chatData.stats.incomingMessages}</StatValue>
           </StatItem>
           <StatItem>
-            <StatLabel>Исходящие</StatLabel>
+            <StatLabel>{t('outgoing')}</StatLabel>
             <StatValue>{chatData.stats.outgoingMessages}</StatValue>
           </StatItem>
         </StatsContainer>
@@ -469,7 +512,7 @@ export const ContextSelector = ({
 
       {totalMessages > 0 && (
         <RangeContainer>
-          <RangeLabel>Начало диапазона: сообщение {startIndex + 1}</RangeLabel>
+          <RangeLabel>{t('rangeStart', { number: startIndex + 1 })}</RangeLabel>
           <RangeInput
             type="range"
             min={0}
@@ -485,7 +528,7 @@ export const ContextSelector = ({
             <span>{totalMessages}</span>
           </RangeValues>
 
-          <RangeLabel>Конец диапазона: сообщение {endIndex + 1}</RangeLabel>
+          <RangeLabel>{t('rangeEnd', { number: endIndex + 1 })}</RangeLabel>
           <RangeInput
             type="range"
             min={0}
@@ -506,19 +549,19 @@ export const ContextSelector = ({
       {contextStats && (
         <StatsContainer>
           <StatItem>
-            <StatLabel>Выбрано сообщений</StatLabel>
+            <StatLabel>{t('selectedMessages')}</StatLabel>
             <StatValue>{contextStats.messageCount}</StatValue>
           </StatItem>
           <StatItem>
-            <StatLabel>Слов в выборке</StatLabel>
+            <StatLabel>{t('wordsInSelection')}</StatLabel>
             <StatValue>{contextStats.wordCount}</StatValue>
           </StatItem>
           <StatItem>
-            <StatLabel>Входящие</StatLabel>
+            <StatLabel>{t('incoming')}</StatLabel>
             <StatValue>{contextStats.incomingCount}</StatValue>
           </StatItem>
           <StatItem>
-            <StatLabel>Исходящие</StatLabel>
+            <StatLabel>{t('outgoing')}</StatLabel>
             <StatValue>{contextStats.outgoingCount}</StatValue>
           </StatItem>
         </StatsContainer>
@@ -529,7 +572,7 @@ export const ContextSelector = ({
           {selectedMessages.slice(0, 10).map((msg, index) => (
             <MessagePreview key={msg.id || index}>
               <MessageSender direction={msg.direction}>
-                {msg.direction === 'incoming' ? 'Собеседник' : 'Я'}:
+                {msg.direction === 'incoming' ? t('participant') : t('me')}:
               </MessageSender>
               <MessageText>
                 {msg.text?.length > 60 ? msg.text.substring(0, 60) + '...' : msg.text}
@@ -538,7 +581,7 @@ export const ContextSelector = ({
           ))}
           {selectedMessages.length > 10 && (
             <div style={{ textAlign: 'center', color: '#6b7280', fontStyle: 'italic' }}>
-              ... и ещё {selectedMessages.length - 10} сообщений
+              {t('andMore', { count: selectedMessages.length - 10 })}
             </div>
           )}
         </ContextPreview>
@@ -547,7 +590,7 @@ export const ContextSelector = ({
       {collectionProgress?.isCollecting && (
         <CollectionStatus>
           <div>
-            <div>Собираем сообщения... {collectionProgress.progress.current}{collectionProgress.progress.total > 0 ? `/${collectionProgress.progress.total}` : ''}</div>
+            <div>{t('collectingMessages', { current: collectionProgress.progress.current, total: collectionProgress.progress.total > 0 ? `/${collectionProgress.progress.total}` : '' })}</div>
             <ProgressBar>
               <ProgressFill 
                 progress={collectionProgress.progress.total > 0 ? (collectionProgress.progress.current / collectionProgress.progress.total) * 100 : 0} 
@@ -559,14 +602,14 @@ export const ContextSelector = ({
 
       <ActionButtons>
         <ActionButton onClick={handleCollectMore} disabled={collectionProgress?.isCollecting}>
-          {collectionProgress?.isCollecting ? 'Собираем...' : 'Собрать больше сообщений'}
+          {collectionProgress?.isCollecting ? t('collecting') : t('collectMore')}
         </ActionButton>
         <ActionButton 
           primary 
           onClick={handleGenerateSummary}
           disabled={selectedMessages.length === 0}
         >
-          Создать резюме ({selectedMessages.length} сообщений)
+          {t('createSummary', { count: selectedMessages.length })}
         </ActionButton>
       </ActionButtons>
     </Container>

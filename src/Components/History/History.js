@@ -160,7 +160,7 @@ const EntryContent = styled.div`
   line-height: 1.4;
   margin-bottom: 8px;
   max-height: 80px;
-  overflow: hidden;
+  overflow-y: scroll;
   text-overflow: ellipsis;
 `;
 

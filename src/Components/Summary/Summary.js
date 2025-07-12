@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled, { keyframes } from "styled-components";
+import { useTranslation } from "react-i18next";
 import { generateChatSummary } from "../../utils/openai";
 import { 
   getCachedSummary, 
@@ -231,6 +232,7 @@ const EmptyState = styled.div`
 `;
 
 export const Summary = ({ chatData, settings, onRefreshData }) => {
+  const { t } = useTranslation();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -268,7 +270,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
 
     if (!settings) {
       console.log('No settings available');
-      setError('Настройки не загружены');
+      setError(t('noApiKey'));
       return;
     }
 
@@ -286,7 +288,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       }
     } catch (err) {
       console.error('Error loading cached summary:', err);
-      setError('Произошла ошибка при загрузке резюме');
+      setError(t('summaryError'));
       setSummary(null);
     }
   };
@@ -311,7 +313,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
 
     if (!settings) {
       console.log('No settings available');
-      setError('Настройки не загружены');
+      setError(t('noApiKey'));
       return;
     }
 
@@ -346,7 +348,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       }
     } catch (err) {
       console.error('Error in generateSummary:', err);
-      setError('Произошла неожиданная ошибка');
+      setError(t('summaryError'));
       setSummary(null);
     } finally {
       console.log('Summary generation completed');
@@ -392,7 +394,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       console.log('Chat cache cleared successfully');
     } catch (error) {
       console.error('Error clearing cache:', error);
-      setError('Ошибка при очистке кэша');
+      setError(t('cacheClearError'));
     } finally {
       setIsClearingCache(false);
     }
@@ -407,7 +409,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       console.log('All cache cleared successfully');
     } catch (error) {
       console.error('Error clearing all cache:', error);
-      setError('Ошибка при очистке всего кэша');
+      setError(t('cacheClearError'));
     } finally {
       setIsClearingCache(false);
     }
@@ -418,12 +420,12 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     return (
       <Container>
         <SummaryTitle>
-          Резюме
-          {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
+          {t('summary')}
+          {settings?.debugMode && <DebugBadge>{t('debug')}</DebugBadge>}
         </SummaryTitle>
         <LoadingContainer>
           <LoadingSpinner />
-          Генерируем резюме...
+          {t('generating')}
         </LoadingContainer>
       </Container>
     );
@@ -434,13 +436,13 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     return (
       <Container>
         <SummaryTitle>
-          Резюме
-          {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
+          {t('summary')}
+          {settings?.debugMode && <DebugBadge>{t('debug')}</DebugBadge>}
         </SummaryTitle>
         <ErrorContainer>
           <ErrorText>{error}</ErrorText>
           <RetryButton onClick={handleRetry} disabled={loading}>
-            Повторить
+            {t('refresh')}
           </RetryButton>
         </ErrorContainer>
       </Container>
@@ -452,13 +454,13 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     return (
       <Container>
         <SummaryTitle>
-          Резюме
-          {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
+          {t('summary')}
+          {settings?.debugMode && <DebugBadge>{t('debug')}</DebugBadge>}
         </SummaryTitle>
         <EmptyState>
           {settings?.debugMode 
-            ? 'Режим отладки включен. Выберите чат для просмотра отладочной информации.'
-            : 'Выберите чат в Telegram для генерации резюме'
+            ? t('enableDebugMode')
+            : t('noMessages')
           }
         </EmptyState>
       </Container>
@@ -483,25 +485,22 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     return (
       <Container>
         <SummaryTitle>
-          Резюме
-          {settings?.debugMode && <DebugBadge>Отладка</DebugBadge>}
+          {t('summary')}
+          {settings?.debugMode && <DebugBadge>{t('debug')}</DebugBadge>}
           <ButtonGroup>
             <MessageCount>
-              ({chatData.messages.length} сообщений)
+              ({chatData.messages.length} {t('messages')})
             </MessageCount>
             <ActionButton variant="context" onClick={handleSelectContext}>
-              Выбрать контекст
+              {t('selectContext')}
             </ActionButton>
             <ActionButton primary onClick={handleRefresh} disabled={loading || isClearingCache}>
-              Создать резюме
+              {t('createSummary', { count: chatData.messages.length })}
             </ActionButton>
           </ButtonGroup>
         </SummaryTitle>
         <EmptyState>
-          {settings?.debugMode 
-            ? 'Нет кэшированного резюме. Выберите контекст или создайте резюме для всех сообщений.'
-            : 'Нет резюме для этого чата. Выберите контекст или создайте резюме для всех сообщений.'
-          }
+          {t('noMessages')}
         </EmptyState>
       </Container>
     );
@@ -512,32 +511,31 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     return (
       <Container className={summary.debug ? 'debug' : ''}>
         <SummaryTitle>
-          Резюме
-          {summary.debug && <DebugBadge>Отладка</DebugBadge>}
+          {t('summary')}
+          {summary.debug && <DebugBadge>{t('debug')}</DebugBadge>}
           {summary.provider && <ProviderInfo>via {summary.provider}</ProviderInfo>}
-          {summary.cached && <CacheIndicator>Кэш</CacheIndicator>}
+          {summary.cached && <CacheIndicator>{t('cached')}</CacheIndicator>}
           <ButtonGroup>
             <MessageCount>
-              ({summary.messagesCount || chatData?.messages?.length} сообщений)
+              ({summary.messagesCount || chatData?.messages?.length} {t('messages')})
             </MessageCount>
             <ActionButton variant="context" onClick={handleSelectContext}>
-              Изменить контекст
+              {t('changeContext')}
             </ActionButton>
             <ActionButton onClick={handleRefresh} disabled={loading || isClearingCache}>
-              Обновить
+              {t('refresh')}
             </ActionButton>
             <ActionButton onClick={handleClearCache} disabled={loading || isClearingCache}>
-              {isClearingCache ? 'Очистка...' : 'Очистить кэш'}
+              {isClearingCache ? t('clearing') : t('clearCache')}
             </ActionButton>
           </ButtonGroup>
         </SummaryTitle>
         
         {summary.context && (
           <ContextInfo>
-            Резюме создано для {summary.context.messageCount} сообщений 
-            из {summary.context.totalAvailable} доступных
+            {t('summaryFor', { count: summary.context.messageCount, total: summary.context.totalAvailable })}
             {summary.context.selectedAt && (
-              <span> • {new Date(summary.context.selectedAt).toLocaleString('ru-RU')}</span>
+              <span> • {new Date(summary.context.selectedAt).toLocaleString()}</span>
             )}
           </ContextInfo>
         )}
@@ -546,7 +544,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
         
         {summary.cached && summary.cachedAt && (
           <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '8px' }}>
-            Загружено из кэша: {new Date(summary.cachedAt).toLocaleString('ru-RU')}
+            {t('loadedFromCache')}: {new Date(summary.cachedAt).toLocaleString()}
           </div>
         )}
       </Container>

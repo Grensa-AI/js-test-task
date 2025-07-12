@@ -26,6 +26,9 @@ module.exports = {
 
       webpackConfig.optimization.runtimeChunk = false;
 
+      // Disable module concatenation to avoid i18next issues
+      webpackConfig.optimization.concatenateModules = false;
+
       return webpackConfig;
     },
   },
