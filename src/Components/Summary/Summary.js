@@ -1,36 +1,83 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 
+
 const Container = styled.div`
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #6366f1;
+  display: flex;
+  flex-direction: column;
 `;
 
-const SummaryTitle = styled.h3`
-  margin: 0 0 12px 0;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const Text = styled.p`
-  margin: 0;
-  color: #6b7280;
+const TextArea = styled.textarea`
+  width: 100%;
+  min-height: 100px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   font-size: 14px;
-  line-height: 1.5;
 `;
+
+const Button = styled.button`
+  padding: 10px;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+`;
+
+const Answer = styled.div`
+  margin-top: 15px;
+  padding: 10px;
+  background: #e0f2f1;
+  border-radius: 6px;
+  color: #065f46;
+  font-size: 14px;
+`;
+
+function askGPTMock(message) {
+  return Promise.resolve({
+    choices: [
+      {message: {content: `GPT-ответ на: ${message}`}}
+    ]
+  });
+}
+
+
+function parseTelegramMessage() {
+  const messages = Array.from(document.querySelectorAll('.message.spoilers-container'))
+    .map(el => el.innerText.trim())
+    .filter(Boolean);
+
+  return messages;
+}
 
 export const Summary = () => {
+  const [input, setInput] = useState("");
+  const [answer, setAnswer] = useState("");
+
+  const handleAsk = async () => {
+    const messages = parseTelegramMessage();
+    if (messages.length === 0) {
+      setAnswer("Сообщений не найдено");
+      return;
+    }
+
+    const combined = messages.join("\n");
+    setInput(combined);
+    const result = await askGPTMock(combined);
+    setAnswer(result.choices[0].message.content);
+  };
+
   return (
     <Container>
-      <SummaryTitle>Резюме</SummaryTitle>
-      <Text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris.
-      </Text>
+      <TextArea
+        value={input}
+        readOnly
+        placeholder="Сообщения из Telegram появятся здесь"
+      />
+
+      <Button onClick={handleAsk}>Спросить GPT</Button>
+      {answer && <Answer>{answer}</Answer>}
     </Container>
-  );
-};
+  ); 
+}
