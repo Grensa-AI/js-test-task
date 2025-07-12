@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import { 
   getSummaryHistory, 
   getHistoryStats, 
@@ -308,6 +309,7 @@ const LoadingSpinner = styled.div`
 `;
 
 export const History = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [history, setHistory] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -403,7 +405,7 @@ export const History = ({ isOpen, onClose }) => {
   };
 
   const handleDeleteEntry = async (entryId) => {
-    if (!window.confirm('Удалить эту запись из истории?')) return;
+    if (!window.confirm(t('confirmDeleteEntry') || 'Удалить эту запись из истории?')) return;
     
     try {
       await deleteHistoryEntry(entryId);
@@ -415,7 +417,7 @@ export const History = ({ isOpen, onClose }) => {
   };
 
   const handleClearAll = async () => {
-    if (!window.confirm('Очистить всю историю? Это действие нельзя отменить.')) return;
+    if (!window.confirm(t('confirmClearAll') || 'Очистить всю историю? Это действие нельзя отменить.')) return;
     
     try {
       await clearAllHistory();
@@ -471,24 +473,24 @@ export const History = ({ isOpen, onClose }) => {
   return (
     <Container>
       <HistoryTitle>
-        История резюме {refreshing && <span style={{ color: '#8b5cf6', fontSize: '12px' }}>🔄</span>}
+        {t('historyTitle')} {refreshing && <span style={{ color: '#8b5cf6', fontSize: '12px' }}>🔄</span>}
         <ControlButtons>
           <ControlButton 
             className="refresh" 
             onClick={loadHistory}
             disabled={loading || refreshing}
           >
-            {loading ? 'Загрузка...' : refreshing ? 'Обновление...' : 'Обновить'}
+            {loading ? t('loading') : refreshing ? t('refreshing') : t('refresh')}
           </ControlButton>
           <ControlButton 
             className="clear" 
             onClick={handleClearAll}
             disabled={loading || history.length === 0}
           >
-            Очистить всё
+            {t('clearAll')}
           </ControlButton>
           <ControlButton onClick={onClose}>
-            Закрыть
+            {t('close')}
           </ControlButton>
         </ControlButtons>
       </HistoryTitle>
@@ -497,16 +499,16 @@ export const History = ({ isOpen, onClose }) => {
         <StatsContainer>
           <StatItem>
             <span>📊</span>
-            <span>Всего записей: {stats.totalEntries}</span>
+            <span>{t('totalEntries')}: {stats.totalEntries}</span>
           </StatItem>
           <StatItem>
             <span>💬</span>
-            <span>Чатов: {stats.uniqueChats}</span>
+            <span>{t('chats')}: {stats.uniqueChats}</span>
           </StatItem>
           {Object.keys(stats.providers).length > 0 && (
             <StatItem>
               <span>🤖</span>
-              <span>Провайдеры: {Object.keys(stats.providers).join(', ')}</span>
+              <span>{t('providers')}: {Object.keys(stats.providers).join(', ')}</span>
             </StatItem>
           )}
         </StatsContainer>
@@ -517,7 +519,7 @@ export const History = ({ isOpen, onClose }) => {
           value={filters.chatId}
           onChange={(e) => setFilters({...filters, chatId: e.target.value})}
         >
-          <option value="">Все чаты</option>
+          <option value="">{t('allChats')}</option>
           {getUniqueChats().map(chat => (
             <option key={chat} value={chat}>{chat}</option>
           ))}
@@ -527,7 +529,7 @@ export const History = ({ isOpen, onClose }) => {
           value={filters.provider}
           onChange={(e) => setFilters({...filters, provider: e.target.value})}
         >
-          <option value="">Все провайдеры</option>
+          <option value="">{t('allProviders')}</option>
           {getUniqueProviders().map(provider => (
             <option key={provider} value={provider}>{provider}</option>
           ))}
@@ -535,7 +537,7 @@ export const History = ({ isOpen, onClose }) => {
         
         <FilterInput
           type="number"
-          placeholder="Лимит"
+          placeholder={t('limit')}
           value={filters.limit}
           onChange={(e) => setFilters({...filters, limit: parseInt(e.target.value) || 20})}
           min="1"
@@ -549,7 +551,7 @@ export const History = ({ isOpen, onClose }) => {
         </div>
       ) : history.length === 0 ? (
         <EmptyState>
-          История пуста. Создайте резюме для чата, чтобы увидеть записи здесь.
+          {t('historyEmpty')}
         </EmptyState>
       ) : (
         <HistoryList>
@@ -562,8 +564,8 @@ export const History = ({ isOpen, onClose }) => {
                 <EntryMeta>
                   <div>{formatDate(entry.timestamp)}</div>
                   <div>{entry.provider} • {entry.model}</div>
-                  {entry.debug && <div style={{ color: '#f59e0b' }}>DEBUG</div>}
-                  {entry.cached && <div style={{ color: '#059669' }}>CACHE</div>}
+                  {entry.debug && <div style={{ color: '#f59e0b' }}>{t('debug').toUpperCase()}</div>}
+                  {entry.cached && <div style={{ color: '#059669' }}>{t('cached').toUpperCase()}</div>}
                 </EntryMeta>
               </EntryHeader>
               
@@ -573,11 +575,11 @@ export const History = ({ isOpen, onClose }) => {
               
               <ContextSection>
                 <ContextRow>
-                  <ContextLabel>Сообщений:</ContextLabel>
+                  <ContextLabel>{t('messagesLabel')}:</ContextLabel>
                   <ContextValue>{entry.context?.messageCount || 0}</ContextValue>
                 </ContextRow>
                 <ContextRow>
-                  <ContextLabel>Настройки:</ContextLabel>
+                  <ContextLabel>{t('settingsLabel')}:</ContextLabel>
                   <ContextValue>
                     {entry.context?.settings?.provider} • {entry.context?.settings?.model}
                   </ContextValue>
@@ -586,7 +588,7 @@ export const History = ({ isOpen, onClose }) => {
                 {expandedEntries.has(entry.id) && entry.context?.messagesPreview && (
                   <MessagePreview>
                     <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                      Последние сообщения:
+                      {t('lastMessages')}:
                     </div>
                     {entry.context.messagesPreview.map((msg, index) => (
                       <MessageItem key={index}>
@@ -605,13 +607,13 @@ export const History = ({ isOpen, onClose }) => {
                   className="expand"
                   onClick={() => toggleExpanded(entry.id)}
                 >
-                  {expandedEntries.has(entry.id) ? 'Свернуть' : 'Подробнее'}
+                  {expandedEntries.has(entry.id) ? t('collapse') : t('expand')}
                 </ActionButton>
                 <ActionButton 
                   className="delete"
                   onClick={() => handleDeleteEntry(entry.id)}
                 >
-                  Удалить
+                  {t('delete')}
                 </ActionButton>
               </ActionButtons>
             </HistoryEntry>

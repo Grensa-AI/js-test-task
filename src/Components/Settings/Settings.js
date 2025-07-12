@@ -379,9 +379,9 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
   };
 
   const formatBytes = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return `0 ${t('bytes')}`;
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
+    const sizes = [t('bytes'), t('kb'), t('mb')];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };

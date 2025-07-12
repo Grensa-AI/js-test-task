@@ -83,6 +83,38 @@ const resources = {
       // Status messages
       generating: "Generating summary...",
       generatingWithCount: "Generating summary for {{count}} messages...",
+      via: "via",
+      
+      // History component
+      historyTitle: "Summary History",
+      refreshing: "Refreshing...",
+      loading: "Loading...",
+      updating: "Updating...",
+      refresh: "Refresh",
+      clearAll: "Clear All",
+      close: "Close",
+      totalEntries: "Total entries",
+      chats: "Chats",
+      providers: "Providers",
+      allChats: "All chats",
+      allProviders: "All providers",
+      limit: "Limit",
+      historyEmpty: "History is empty. Create a summary for a chat to see entries here.",
+      messagesLabel: "Messages",
+      settingsLabel: "Settings",
+      lastMessages: "Last messages",
+      expand: "Show more",
+      collapse: "Show less",
+      delete: "Delete",
+      
+      // File size units
+      bytes: "Bytes",
+      kb: "KB",
+      mb: "MB",
+      
+      // Confirmation dialogs
+      confirmDeleteEntry: "Delete this entry from history?",
+      confirmClearAll: "Clear all history? This action cannot be undone.",
     }
   },
   ru: {
@@ -164,6 +196,38 @@ const resources = {
       // Status messages
       generating: "Генерация резюме...",
       generatingWithCount: "Генерация резюме для {{count}} сообщений...",
+      via: "через",
+      
+      // History component
+      historyTitle: "История резюме",
+      refreshing: "Обновление...",
+      loading: "Загрузка...",
+      updating: "Обновление...",
+      refresh: "Обновить",
+      clearAll: "Очистить всё",
+      close: "Закрыть",
+      totalEntries: "Всего записей",
+      chats: "Чатов",
+      providers: "Провайдеры",
+      allChats: "Все чаты",
+      allProviders: "Все провайдеры",
+      limit: "Лимит",
+      historyEmpty: "История пуста. Создайте резюме для чата, чтобы увидеть записи здесь.",
+      messagesLabel: "Сообщений",
+      settingsLabel: "Настройки",
+      lastMessages: "Последние сообщения",
+      expand: "Подробнее",
+      collapse: "Свернуть",
+      delete: "Удалить",
+      
+      // File size units
+      bytes: "Байт",
+      kb: "КБ",
+      mb: "МБ",
+      
+      // Confirmation dialogs
+      confirmDeleteEntry: "Удалить эту запись из истории?",
+      confirmClearAll: "Очистить всю историю? Это действие нельзя отменить.",
     }
   }
 };

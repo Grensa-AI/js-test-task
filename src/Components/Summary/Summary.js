@@ -513,7 +513,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
         <SummaryTitle>
           {t('summary')}
           {summary.debug && <DebugBadge>{t('debug')}</DebugBadge>}
-          {summary.provider && <ProviderInfo>via {summary.provider}</ProviderInfo>}
+          {summary.provider && <ProviderInfo>{t('via')} {summary.provider}</ProviderInfo>}
           {summary.cached && <CacheIndicator>{t('cached')}</CacheIndicator>}
           <ButtonGroup>
             <MessageCount>
