@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("path")
 
 module.exports = {
   webpack: {
@@ -7,10 +7,10 @@ module.exports = {
         main: path.resolve(__dirname, "src/index.js"),
         content: path.resolve(__dirname, "src/content.js"),
         background: path.resolve(__dirname, "src/background.js"),
-      };
+      }
 
-      webpackConfig.output.filename = "static/js/[name].js";
-      webpackConfig.output.chunkFilename = "static/js/[name].js";
+      webpackConfig.output.filename = "static/js/[name].js"
+      webpackConfig.output.chunkFilename = "static/js/[name].js"
 
       // Disable chunk splitting completely for content script
       webpackConfig.optimization.splitChunks = {
@@ -22,11 +22,11 @@ module.exports = {
             chunks: (chunk) => chunk.name !== "content",
           },
         },
-      };
+      }
 
-      webpackConfig.optimization.runtimeChunk = false;
+      webpackConfig.optimization.runtimeChunk = false
 
-      return webpackConfig;
+      return webpackConfig
     },
   },
-};
+}
