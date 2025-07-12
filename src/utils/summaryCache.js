@@ -1,6 +1,8 @@
 // Summary cache utility for aggressive caching with manual invalidation
 // This helps reduce expensive API calls by storing summaries persistently
 
+import { addSummaryToHistory } from './summaryHistory';
+
 const CACHE_KEYS = {
   SUMMARIES: 'telegram_extension_summaries',
   CACHE_METADATA: 'telegram_extension_cache_metadata'
@@ -166,6 +168,17 @@ export const cacheSummary = async (chatData, settings, summaryResult) => {
     
     await saveSummaryCache(summaries, metadata);
     console.log('Summary cached successfully for chat:', chatData.chatTitle, 'Key:', cacheKey);
+    
+    // Add to history if this is a new summary (not from cache)
+    if (!summaryResult.cached) {
+      try {
+        await addSummaryToHistory(chatData, settings, summaryResult);
+        console.log('Summary added to history');
+      } catch (historyError) {
+        console.error('Error adding summary to history:', historyError);
+        // Don't fail the caching if history fails
+      }
+    }
   } catch (error) {
     console.error('Error caching summary:', error);
   }

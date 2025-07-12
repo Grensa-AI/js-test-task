@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Title } from "./Components/Title/Title";
 import { Summary } from "./Components/Summary/Summary";
 import { Settings } from "./Components/Settings/Settings";
+import { History } from "./Components/History/History";
 import { loadSettings, saveSettings } from "./utils/storage";
 
 const AppContainer = styled.div`
@@ -35,10 +36,16 @@ const AppContainer = styled.div`
   }
 `;
 
-const SettingsButton = styled.button`
+const ButtonContainer = styled.div`
   position: absolute;
   top: 16px;
   right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+`;
+
+const ControlButton = styled.button`
   background: transparent;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -59,6 +66,17 @@ const SettingsButton = styled.button`
     border-color: #6366f1;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
+  
+  &.history {
+    border-color: #8b5cf6;
+    color: #8b5cf6 !important;
+    
+    &:hover {
+      background: #faf5ff;
+      border-color: #7c3aed;
+      color: #7c3aed !important;
+    }
+  }
 `;
 
 const AppContent = styled.div`
@@ -75,6 +93,7 @@ const LoadingContainer = styled.div`
 export const App = ({ chatData, onRefreshData }) => {
   const [settings, setSettings] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   // Load settings on component mount
@@ -111,6 +130,12 @@ export const App = ({ chatData, onRefreshData }) => {
 
   const handleToggleSettings = () => {
     setShowSettings(!showSettings);
+    setShowHistory(false); // Close history when opening settings
+  };
+
+  const handleToggleHistory = () => {
+    setShowHistory(!showHistory);
+    setShowSettings(false); // Close settings when opening history
   };
 
   // Don't render until settings are loaded
@@ -127,9 +152,14 @@ export const App = ({ chatData, onRefreshData }) => {
   return (
     <AppContainer>
       <AppContent>
-        <SettingsButton onClick={handleToggleSettings}>
-          ⚙️ Настройки
-        </SettingsButton>
+        <ButtonContainer>
+          <ControlButton onClick={handleToggleSettings}>
+            ⚙️ Настройки
+          </ControlButton>
+          <ControlButton className="history" onClick={handleToggleHistory}>
+            📚 История
+          </ControlButton>
+        </ButtonContainer>
         
         <Title chatTitle={chatData?.chatTitle} />
         
@@ -138,6 +168,11 @@ export const App = ({ chatData, onRefreshData }) => {
           onClose={() => setShowSettings(false)}
           settings={settings}
           onSave={handleSaveSettings}
+        />
+        
+        <History 
+          isOpen={showHistory}
+          onClose={() => setShowHistory(false)}
         />
         
         <Summary chatData={chatData} settings={settings} onRefreshData={onRefreshData} />
