@@ -3,7 +3,7 @@
   "name": "Telegram Extension",
   "version": "1.0.0",
   "description": "Chrome extension for Telegram Web",
-  "permissions": ["activeTab", "declarativeContent"],
+  "permissions": ["activeTab", "declarativeContent", "storage"],
   "host_permissions": ["https://web.telegram.org/*"],
   "action": {
     "default_title": "Telegram Extension",
