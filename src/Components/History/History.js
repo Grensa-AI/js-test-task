@@ -270,19 +270,75 @@ export const History = ({ isOpen, onClose }) => {
   const [history, setHistory] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [expandedEntries, setExpandedEntries] = useState(new Set());
+  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
   const [filters, setFilters] = useState({
     chatId: '',
     provider: '',
     limit: 20
   });
 
+  // Load history when component opens or filters change
   useEffect(() => {
     if (isOpen) {
       loadHistory();
       loadStats();
     }
   }, [isOpen, filters]);
+
+  // Listen for history updates via custom events
+  useEffect(() => {
+    const handleHistoryUpdate = async (event) => {
+      console.log('History update event received:', event.detail);
+      if (isOpen) {
+        setRefreshing(true);
+        try {
+          await loadHistory();
+          await loadStats();
+        } finally {
+          setRefreshing(false);
+        }
+      }
+      setLastUpdateTime(Date.now());
+    };
+
+    window.addEventListener('summaryHistoryUpdated', handleHistoryUpdate);
+    return () => window.removeEventListener('summaryHistoryUpdated', handleHistoryUpdate);
+  }, [isOpen]);
+
+  // Fallback polling mechanism for edge cases
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const interval = setInterval(async () => {
+      try {
+        // Check if there are new history entries by comparing timestamps
+        const { history: currentHistory } = await getSummaryHistory({ limit: 1 });
+        if (currentHistory.length > 0) {
+          const latestTimestamp = new Date(currentHistory[0].timestamp).getTime();
+          if (latestTimestamp > lastUpdateTime) {
+            console.log('New history entries detected via polling, refreshing...');
+            await loadHistory();
+            await loadStats();
+            setLastUpdateTime(Date.now());
+          }
+        }
+      } catch (error) {
+        console.error('Error checking for history updates:', error);
+      }
+    }, 5000); // Check every 5 seconds (less frequent since we have events)
+
+    return () => clearInterval(interval);
+  }, [isOpen, lastUpdateTime]);
+
+  // Update last update time when history loads
+  useEffect(() => {
+    if (history.length > 0) {
+      const latestTimestamp = new Date(history[0].timestamp).getTime();
+      setLastUpdateTime(Math.max(latestTimestamp, lastUpdateTime));
+    }
+  }, [history]);
 
   const loadHistory = async () => {
     setLoading(true);
@@ -374,14 +430,14 @@ export const History = ({ isOpen, onClose }) => {
   return (
     <Container>
       <HistoryTitle>
-        История резюме
+        История резюме {refreshing && <span style={{ color: '#8b5cf6', fontSize: '12px' }}>🔄</span>}
         <ControlButtons>
           <ControlButton 
             className="refresh" 
             onClick={loadHistory}
-            disabled={loading}
+            disabled={loading || refreshing}
           >
-            {loading ? 'Загрузка...' : 'Обновить'}
+            {loading ? 'Загрузка...' : refreshing ? 'Обновление...' : 'Обновить'}
           </ControlButton>
           <ControlButton 
             className="clear" 

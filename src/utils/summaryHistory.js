@@ -125,6 +125,13 @@ export const addSummaryToHistory = async (chatData, settings, summaryResult) => 
     await saveSummaryHistory(history, metadata);
     console.log('Summary added to history:', historyId);
     
+    // Dispatch custom event to notify components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('summaryHistoryUpdated', {
+        detail: { historyId, historyEntry }
+      }));
+    }
+    
     return historyId;
   } catch (error) {
     console.error('Error adding summary to history:', error);
@@ -209,6 +216,13 @@ export const deleteHistoryEntry = async (historyId) => {
     await saveSummaryHistory(history, metadata);
     console.log('History entry deleted:', historyId);
     
+    // Dispatch custom event to notify components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('summaryHistoryUpdated', {
+        detail: { action: 'delete', historyId }
+      }));
+    }
+    
     return true;
   } catch (error) {
     console.error('Error deleting history entry:', error);
@@ -221,6 +235,13 @@ export const clearAllHistory = async () => {
   try {
     await saveSummaryHistory([], {});
     console.log('All history cleared');
+    
+    // Dispatch custom event to notify components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('summaryHistoryUpdated', {
+        detail: { action: 'clear' }
+      }));
+    }
   } catch (error) {
     console.error('Error clearing all history:', error);
     throw error;
