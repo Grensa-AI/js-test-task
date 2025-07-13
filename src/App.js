@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { Title } from "@src/Components/Title/Title";
 import { SummaryPage } from "@src/pages/Summary";
+import { SettingsPage } from "@src/pages/Settings";
 
 const AppContainer = styled.div`
   width: 400px;
@@ -59,7 +60,7 @@ export const App = () => {
         </button>
       </Nav>
       {screen === "summary" && <SummaryPage />}
-      {screen === "settings" && <h1>Settings</h1>}
+      {screen === "settings" && <SettingsPage />}
       {screen === "history" && <h1>History</h1>}
     </AppContainer>
   );
