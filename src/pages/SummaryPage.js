@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Summary } from "../Components/Summary/Summary";
-import useHashChange from "../hooks/useHashChange";
-import extractChat from "../utils/extractChat";
+import { Summary } from "@src/Components/Summary/Summary";
+import useHashChange from "@src/hooks/useHashChange";
+import extractChat from "@src/utils/extractChat";
 
 export const SummaryPage = () => {
   const [chatInfo, setChatInfo] = useState({});
