@@ -7,6 +7,12 @@ import { AppContainer, AppContent } from "./AppContent";
 export const App = () => {
 
 
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message === "show-widget") {
+      window.dispatchEvent(new Event("show-extension-widget"));
+    }
+  });
+
   const [i18nReady, setI18nReady] = useState(false);
 
   useEffect(() => {

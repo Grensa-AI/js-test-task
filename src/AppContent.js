@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Title } from "@src/Components/Title/Title";
 import { SummaryPage } from "@src/pages/Summary";
@@ -18,6 +18,9 @@ export const AppContainer = styled.div`
     "Helvetica Neue", Arial, sans-serif;
   overflow-y: auto;
   color: #111827;
+  position: relative;
+
+  display: ${props => (props.hidden ? "none" : "block")};
 `;
 
 const Nav = styled.div`
@@ -41,26 +44,65 @@ const Nav = styled.div`
       background-color: #e5e7eb;
     }
   }
-`
+`;
+
+const MinimizeButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 20px;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+  line-height: 1;
+`;
 
 export const AppContent = () => {
   const [screen, setScreen] = useState("summary");
+  const [hidden, setHidden] = useState(false);
 
   const { t } = useTranslation();
 
+  // Show widget again when event is dispatched
+  useEffect(() => {
+    function handleShowWidget() {
+      setHidden(false);
+    }
+    window.addEventListener("show-extension-widget", handleShowWidget);
+    return () => window.removeEventListener("show-extension-widget", handleShowWidget);
+  }, []);
 
   return (
-    <AppContainer>
+    <AppContainer hidden={hidden}>
+      <MinimizeButton
+        aria-label="Minimize widget"
+        onClick={() => setHidden(true)}
+        title="Minimize"
+      >
+        −
+      </MinimizeButton>
       <Title />
       <Nav>
-        <button className={screen === "summary" ? "active" : ""} onClick={() => setScreen("summary")}>
-          {t('summary')}
+        <button
+          className={screen === "summary" ? "active" : ""}
+          onClick={() => setScreen("summary")}
+        >
+          {t("summary")}
         </button>
-        <button className={screen === "settings" ? "active" : ""} onClick={() => setScreen("settings")}>
-          {t('settings')}
+        <button
+          className={screen === "settings" ? "active" : ""}
+          onClick={() => setScreen("settings")}
+        >
+          {t("settings")}
         </button>
-        <button className={screen === "history" ? "active" : ""} onClick={() => setScreen("history")}>
-          {t('history')}
+        <button
+          className={screen === "history" ? "active" : ""}
+          onClick={() => setScreen("history")}
+        >
+          {t("history")}
         </button>
       </Nav>
       {screen === "summary" && <SummaryPage />}
