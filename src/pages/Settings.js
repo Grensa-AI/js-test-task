@@ -84,7 +84,7 @@ export const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    chrome.storage.sync.get(["openai_api_key", "app_language"], (result) => {
+    chrome.storage.local.get(["openai_api_key", "app_language"], (result) => {
       if (result.openai_api_key) {
         setApiKey(result.openai_api_key);
         setIsEditing(false);
@@ -97,7 +97,7 @@ export const SettingsPage = () => {
   }, []);
 
   const handleSaveApiKey = () => {
-    chrome.storage.sync.set({ openai_api_key: apiKey }, () => {
+    chrome.storage.local.set({ openai_api_key: apiKey }, () => {
       setStatus(t("api_key_saved"));
       setIsEditing(false);
       setTimeout(() => setStatus(""), 2000);
