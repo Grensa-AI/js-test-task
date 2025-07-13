@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import i18n from '../i18n';
 
 // Provider configurations
 const PROVIDERS = {
@@ -21,7 +22,7 @@ const PROVIDERS = {
 export const generateChatSummary = async (chatData, settings = {}) => {
   try {
     if (!chatData || !chatData.messages || chatData.messages.length === 0) {
-      throw new Error('No chat data provided');
+      throw new Error(i18n.t('noChatData'));
     }
 
     // Get provider configuration
@@ -29,24 +30,24 @@ export const generateChatSummary = async (chatData, settings = {}) => {
     const providerConfig = PROVIDERS[provider];
     
     if (!providerConfig) {
-      throw new Error(`Unknown provider: ${provider}`);
+      throw new Error(i18n.t('unknownProvider') + `: ${provider}`);
     }
 
     // Format messages for OpenAI
     const formattedMessages = chatData.messages.map(msg => {
-      const sender = msg.direction === 'incoming' ? 'Собеседник' : 'Я';
+      const sender = msg.direction === 'incoming' ? i18n.t('participant') : i18n.t('me');
       return `${sender}: ${msg.text || ''}`;
     }).join('\n');
 
-    const prompt = `Please provide a concise summary of the following chat conversation. 
-    Focus on the main topics discussed, key decisions made, and important information shared.
-    Keep the summary brief but comprehensive.
+    const prompt = `${i18n.t('promptSummaryInstruction')} 
+    ${i18n.t('promptFocusInstruction')}
+    ${i18n.t('promptBriefInstruction')}
 
-    Chat: ${chatData.chatTitle}
-    Messages:
+    ${i18n.t('promptChatLabel')}: ${chatData.chatTitle}
+    ${i18n.t('promptMessagesLabel')}:
     ${formattedMessages}
 
-    Please provide the summary in Russian (Резюме):`;
+    ${i18n.t('promptResponseInstruction')}`;
 
     // Use provider-specific model or fallback to configured model
     const model = settings.model || providerConfig.defaultModel;
@@ -56,7 +57,7 @@ export const generateChatSummary = async (chatData, settings = {}) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant that creates concise summaries of chat conversations. Always respond in Russian.'
+          content: i18n.t('systemMessage')
         },
         {
           role: 'user',
@@ -74,7 +75,7 @@ export const generateChatSummary = async (chatData, settings = {}) => {
         debug: true,
         debugInfo: {
           provider: providerConfig.name,
-          apiKey: settings.apiKey ? `${settings.apiKey.substring(0, 7)}...` : 'Не установлен',
+          apiKey: settings.apiKey ? `${settings.apiKey.substring(0, 7)}...` : i18n.t('noApiKey'),
           model: model,
           baseURL: providerConfig.baseURL,
           messagesCount: chatData.messages.length,
@@ -83,7 +84,7 @@ export const generateChatSummary = async (chatData, settings = {}) => {
           apiPayload: apiPayload,
           formattedMessages: formattedMessages
         },
-        summary: `[РЕЖИМ ОТЛАДКИ] Запрос готов к отправке в ${providerConfig.name} API.\n\nПровайдер: ${providerConfig.name}\nМодель: ${model}\nЧат: ${chatData.chatTitle}\nСообщений: ${chatData.messages.length}\n\nДля получения реального резюме отключите режим отладки и убедитесь, что API ключ настроен правильно.`,
+        summary: `[${i18n.t('debugMode')}] ${i18n.t('debugModeRequest', { provider: providerConfig.name })}.\n\n${i18n.t('debugModeProvider')}: ${providerConfig.name}\n${i18n.t('debugModeModel')}: ${model}\n${i18n.t('debugModeChat')}: ${chatData.chatTitle}\n${i18n.t('debugModeMessagesCount')}: ${chatData.messages.length}\n\n${i18n.t('debugModeRealSummary')}.`,
         messagesCount: chatData.messages.length,
         chatTitle: chatData.chatTitle
       };
@@ -91,7 +92,7 @@ export const generateChatSummary = async (chatData, settings = {}) => {
 
     // Check if API key is available
     if (!settings.apiKey || settings.apiKey.trim() === '') {
-      throw new Error('API key not provided');
+      throw new Error(i18n.t('apiKeyNotProvided'));
     }
 
     // Initialize OpenAI client with provider-specific configuration
@@ -112,7 +113,7 @@ export const generateChatSummary = async (chatData, settings = {}) => {
     const summary = response.choices[0]?.message?.content?.trim();
     
     if (!summary) {
-      throw new Error('No summary generated');
+      throw new Error(i18n.t('noSummaryGenerated'));
     }
 
     return {
@@ -131,21 +132,21 @@ export const generateChatSummary = async (chatData, settings = {}) => {
     const provider = settings.provider || 'openai';
     const providerConfig = PROVIDERS[provider];
     
-    let errorMessage = 'Произошла ошибка при генерации резюме';
+    let errorMessage = i18n.t('summaryError');
     
-    if (error.message.includes('API key not provided')) {
-      errorMessage = `Не настроен API ключ ${providerConfig.name}. Откройте настройки и добавьте ключ.`;
+    if (error.message.includes(i18n.t('apiKeyNotProvided'))) {
+      errorMessage = i18n.t('noApiKey');
     } else if (error.message.includes('Incorrect API key') || error.message.includes('invalid_api_key')) {
-      errorMessage = `Неверный API ключ ${providerConfig.name}. Проверьте ключ в настройках.`;
+      errorMessage = i18n.t('summaryError');
     } else if (error.message.includes('rate limit')) {
-      errorMessage = 'Превышен лимит запросов API. Попробуйте позже.';
+      errorMessage = i18n.t('summaryError');
     } else if (error.message.includes('quota') || error.message.includes('insufficient_quota')) {
-      errorMessage = `Превышена квота API. Проверьте баланс на ${providerConfig.helpUrl}.`;
-    } else if (error.message.includes('No chat data')) {
-      errorMessage = 'Нет данных чата для обработки';
+      errorMessage = i18n.t('summaryError');
+    } else if (error.message.includes(i18n.t('noChatData'))) {
+      errorMessage = i18n.t('noMessages');
     } else if (error.message.includes('network') || error.message.includes('fetch')) {
-      errorMessage = 'Ошибка сети. Проверьте подключение к интернету.';
-    } else if (error.message.includes('Unknown provider')) {
+      errorMessage = i18n.t('summaryError');
+    } else if (error.message.includes(i18n.t('unknownProvider'))) {
       errorMessage = error.message;
     }
 

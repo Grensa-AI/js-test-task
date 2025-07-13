@@ -474,7 +474,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
       </FormGroup>
       
       <FormGroup>
-        <Label htmlFor="apiKey">{currentProvider.name} API Key</Label>
+        <Label htmlFor="apiKey">{currentProvider.name} {t('apiKey')}</Label>
         <Input
           id="apiKey"
           type="password"
@@ -551,7 +551,7 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
             </CacheStatsItem>
             {cacheStats.entries.length > 0 && (
               <CacheStatsItem>
-                <span>Последнее резюме:</span>
+                <span>{t('lastSummary')}:</span>
                 <strong>{cacheStats.entries[0].chatTitle}</strong>
               </CacheStatsItem>
             )}

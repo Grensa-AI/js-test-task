@@ -115,6 +115,28 @@ const resources = {
       // Confirmation dialogs
       confirmDeleteEntry: "Delete this entry from history?",
       confirmClearAll: "Clear all history? This action cannot be undone.",
+      
+      // Additional strings
+      lastSummary: "Last summary",
+      noChatData: "No chat data provided",
+      unknownProvider: "Unknown provider",
+      apiKeyNotProvided: "API key not provided",
+      noSummaryGenerated: "No summary generated",
+      debugModeRequest: "Request ready to send to {{provider}} API",
+      debugModeProvider: "Provider",
+      debugModeModel: "Model",
+      debugModeChat: "Chat",
+      debugModeMessagesCount: "Messages",
+      debugModeRealSummary: "For real summary, disable debug mode and ensure API key is configured correctly",
+      
+      // Prompt strings
+      promptSummaryInstruction: "Please provide a concise summary of the following chat conversation.",
+      promptFocusInstruction: "Focus on the main topics discussed, key decisions made, and important information shared.",
+      promptBriefInstruction: "Keep the summary brief but comprehensive.",
+      promptChatLabel: "Chat",
+      promptMessagesLabel: "Messages",
+      promptResponseInstruction: "Please provide the summary in English:",
+      systemMessage: "You are a helpful assistant that creates concise summaries of chat conversations. Always respond in English."
     }
   },
   ru: {
@@ -228,6 +250,28 @@ const resources = {
       // Confirmation dialogs
       confirmDeleteEntry: "Удалить эту запись из истории?",
       confirmClearAll: "Очистить всю историю? Это действие нельзя отменить.",
+      
+      // Additional strings
+      lastSummary: "Последнее резюме",
+      noChatData: "Данные чата не предоставлены",
+      unknownProvider: "Неизвестный провайдер",
+      apiKeyNotProvided: "API ключ не предоставлен",
+      noSummaryGenerated: "Резюме не создано",
+      debugModeRequest: "Запрос готов к отправке в {{provider}} API",
+      debugModeProvider: "Провайдер",
+      debugModeModel: "Модель",
+      debugModeChat: "Чат",
+      debugModeMessagesCount: "Сообщений",
+      debugModeRealSummary: "Для получения реального резюме отключите режим отладки и убедитесь, что API ключ настроен правильно",
+      
+      // Prompt strings
+      promptSummaryInstruction: "Пожалуйста, предоставьте краткое резюме следующего чата.",
+      promptFocusInstruction: "Сосредоточьтесь на основных обсуждаемых темах, принятых решениях и важной информации.",
+      promptBriefInstruction: "Сделайте резюме кратким, но всеобъемлющим.",
+      promptChatLabel: "Чат",
+      promptMessagesLabel: "Сообщения",
+      promptResponseInstruction: "Пожалуйста, предоставьте резюме на русском языке:",
+      systemMessage: "Вы полезный помощник, который создает краткие резюме чатов. Всегда отвечайте на русском языке."
     }
   }
 };
