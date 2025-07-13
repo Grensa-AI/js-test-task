@@ -9,7 +9,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "get_summary") {
-    getSummary(message.chatInfo, sendResponse);
+    getSummary(message.chatInfo, sendResponse, message.forceRefresh);
     return true;
   }
 })

@@ -1,11 +1,13 @@
 import { checkCache } from './utils/checkCache';
 import { fetchAndCacheSummary } from './utils/fetchAndCacheSummary';
 
-export async function getSummary(chatContent, sendResponse) {
+export async function getSummary(chatContent, sendResponse, forceRefresh = false) {
   try {
-    const cached = await checkCache(chatContent.chatId);
-    if (cached) {
-      return sendResponse(cached);
+    if (!forceRefresh) {
+      const cached = await checkCache(chatContent.chatId);
+      if (cached) {
+        return sendResponse(cached);
+      }
     }
 
     const fresh = await fetchAndCacheSummary(chatContent);
