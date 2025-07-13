@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 const Container = styled.div`
   padding: 16px;
@@ -21,16 +21,51 @@ const Text = styled.p`
   font-size: 14px;
   line-height: 1.5;
 `;
+const ErrorText = styled(Text)`
+  color: #dc2626;
+`;
+const SkeletonText = styled(Text)`
+  color: #9ca3af;
+  font-style: italic;
+`;
+const SkeletonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+const shimmer = keyframes`
+  0% {background-position: -300px 0; }
+  100% {background-position: 300px 0; }
+`
+const SkeletonContent = styled.div`
+  height: 70px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    #e5e7eb 0%,
+    #f3f4f6 20%,
+    #e5e7eb 40%,
+    #e5e7eb 100%
+  );
+  background-size: 800px 100%;
+  animation: ${shimmer} 1.2s infinite linear;
+`
 
-export const Summary = () => {
+export const Summary = ({ text, loading, error }) => {
   return (
     <Container>
       <SummaryTitle>Резюме</SummaryTitle>
-      <Text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris.
-      </Text>
+
+      {loading ? (
+        <SkeletonWrapper>
+          <SkeletonText>⏳ Summarizing...</SkeletonText>
+          <SkeletonContent />
+        </SkeletonWrapper>
+      ) : error ? (
+        <ErrorText>❌ {error}</ErrorText>
+      ) : (
+        <Text>{text || "Нет данных для отображения."}</Text>
+      )}
     </Container>
   );
 };
