@@ -1,7 +1,17 @@
 import cache from '../cache';
 import { getApiKey } from "../storage";
 import { API, PROMPTS, MODEL } from "../constants";
-
+/**
+ * Sends chat content to the OpenAI API to generate a summary,
+ * caches the resulting summary along with the chat ID and message count,
+ * and returns the summary with metadata indicating it was freshly fetched.
+ *
+ * @param {Object} chatContent - The chat content to summarize.
+ * @param {string} chatContent.chatId - Unique identifier for the chat.
+ * @param {Array} chatContent.messages - Array of chat messages to summarize.
+ * @returns {Promise<{summary: string, lastUpdated: number, fromCache: boolean}>} The generated summary and metadata.
+ * @throws Will throw an error if the API response contains an error.
+ */
 export async function fetchAndCacheSummary(chatContent) {
   const api_key = await getApiKey();
   const res = await fetch(`${API.OPENAI_BASE_URL}/chat/completions`, {
@@ -12,7 +22,10 @@ export async function fetchAndCacheSummary(chatContent) {
     },
     body: JSON.stringify({
       model: MODEL.NAME,
-      messages: [{ role: "system", content: PROMPTS.en }, { role: "user", content: "Chat messages: " + JSON.stringify(chatContent) }],
+      messages: [
+        { role: "system", content: PROMPTS.en },
+        { role: "user", content: "Chat messages: " + JSON.stringify(chatContent) }
+      ],
       temperature: MODEL.TEMPERATURE,
       max_tokens: MODEL.MAX_TOKENS,
     })
