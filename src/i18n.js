@@ -33,11 +33,7 @@ export function initializeI18n() {
   return new Promise((resolve) => {
     chrome.storage.sync.get(["app_language"], (result) => {
       const savedLang = result.app_language || undefined; // undefined will let detector work
-      console.log(savedLang);
       const instance = initI18n(savedLang);
-      console.log("i18n initialized");
-      console.log(en, ru);
-      console.log(instance);
       resolve(instance);
     });
   });
