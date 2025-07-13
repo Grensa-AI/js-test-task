@@ -1,17 +1,19 @@
-import { API, PROMPTS } from "./contants";
+import { API, PROMPTS, MODEL } from "./contants";
+import { getApiKey } from "./storage";
 export async function getSummary(chatContent, sendResponse) {
   try {
+    const api_key = await getApiKey();
     const res = await fetch(`${API.OPENAI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
-        'Authorization': `Bearer ${API.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${api_key}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "gpt-4.1-nano",
+        model: MODEL.NAME,
         messages: [{ role: "user", content: PROMPTS.en + JSON.stringify(chatContent) }],
-        temperature: 0.7,
-        max_tokens: 500,
+        temperature: MODEL.TEMPERATURE,
+        max_tokens: MODEL.MAX_TOKENS,
       })
     });
     const data = await res.json();
