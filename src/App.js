@@ -216,13 +216,9 @@ const StatusIndicator = styled.div`
 `;
 
 export const App = ({ chatData, onRefreshData }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   
-  // Debug log to check i18n instance
-  useEffect(() => {
-    console.log('i18n instance:', i18n);
-    console.log('i18n.changeLanguage:', typeof i18n?.changeLanguage);
-  }, [i18n]);
+  
   
   const [settings, setSettings] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -238,7 +234,6 @@ export const App = ({ chatData, onRefreshData }) => {
         setSettings(loadedSettings);
         setSettingsLoaded(true);
       } catch (error) {
-        console.error('Failed to load settings:', error);
         setSettings({ apiKey: '', debugMode: false });
         setSettingsLoaded(true);
       }
@@ -291,7 +286,6 @@ export const App = ({ chatData, onRefreshData }) => {
   };
 
   const handleRefreshData = () => {
-    console.log('App: Refreshing data...');
     if (onRefreshData) {
       onRefreshData();
     }
@@ -301,10 +295,6 @@ export const App = ({ chatData, onRefreshData }) => {
     try {
       const currentLang = i18nInstance.language || 'en';
       const newLang = currentLang === 'en' ? 'ru' : 'en';
-      
-      console.log('Changing language from', currentLang, 'to', newLang);
-      console.log('i18nInstance:', i18nInstance);
-      console.log('i18nInstance.changeLanguage:', typeof i18nInstance.changeLanguage);
       
       if (i18nInstance && typeof i18nInstance.changeLanguage === 'function') {
         i18nInstance.changeLanguage(newLang);

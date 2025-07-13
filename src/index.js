@@ -4,9 +4,7 @@ import { I18nextProvider } from "react-i18next";
 import { App } from "./App";
 import i18n from "./i18n";
 
-// Debug log to check i18n instance at startup
-console.log('i18n instance at startup:', i18n);
-console.log('i18n.changeLanguage at startup:', typeof i18n?.changeLanguage);
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

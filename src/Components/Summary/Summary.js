@@ -6,8 +6,7 @@ import {
   getCachedSummary, 
   cacheSummary, 
   clearChatSummaryCache, 
-  clearAllSummaryCache,
-  hasCachedSummary 
+  clearAllSummaryCache 
 } from "../../utils/summaryCache";
 import { ContextSelector } from "../ContextSelector/ContextSelector";
 
@@ -245,7 +244,6 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
   useEffect(() => {
     const currentChatId = chatData?.chatId || chatData?.chatTitle;
     if (currentChatId && currentChatId !== lastChatId) {
-      console.log('Chat changed, loading cached summary:', currentChatId);
       loadCachedSummary();
       setLastChatId(currentChatId);
     }
@@ -254,7 +252,6 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
   // Clear summary when settings change
   useEffect(() => {
     if (settings && lastChatId && summary) {
-      console.log('Settings changed, clearing current summary');
       setSummary(null);
       setError(null);
       loadCachedSummary();
@@ -269,7 +266,6 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
     }
 
     if (!settings) {
-      console.log('No settings available');
       setError(t('noApiKey'));
       return;
     }
@@ -278,16 +274,13 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       const cachedSummary = await getCachedSummary(chatData, settings);
       
       if (cachedSummary) {
-        console.log('Using cached summary');
         setSummary(cachedSummary);
         setError(null);
       } else {
-        console.log('No cached summary available');
         setSummary(null);
         setError(null);
       }
     } catch (err) {
-      console.error('Error loading cached summary:', err);
       setError(t('summaryError'));
       setSummary(null);
     }
@@ -296,41 +289,28 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
   const generateSummary = async (contextData = null) => {
     const dataToSummarize = contextData || chatData;
     
-    console.log('generateSummary called', { 
-      hasChat: !!dataToSummarize, 
-      hasMessages: !!dataToSummarize?.messages?.length, 
-      hasSettings: !!settings,
-      isGenerating: isGenerating.current,
-      contextProvided: !!contextData
-    });
-
     if (!dataToSummarize || !dataToSummarize.messages || dataToSummarize.messages.length === 0) {
-      console.log('No chat data or messages - clearing summary');
       setSummary(null);
       setError(null);
       return;
     }
 
     if (!settings) {
-      console.log('No settings available');
       setError(t('noApiKey'));
       return;
     }
 
     // Prevent duplicate requests
     if (isGenerating.current) {
-      console.log('Already generating summary - skipping');
       return;
     }
 
-    console.log('Starting summary generation');
     setLoading(true);
     setError(null);
     isGenerating.current = true;
 
     try {
       const result = await generateChatSummary(dataToSummarize, settings);
-      console.log('Summary generation result:', result);
       
       if (result.success) {
         setSummary(result);
@@ -347,11 +327,9 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
         setSummary(null);
       }
     } catch (err) {
-      console.error('Error in generateSummary:', err);
       setError(t('summaryError'));
       setSummary(null);
     } finally {
-      console.log('Summary generation completed');
       setLoading(false);
       isGenerating.current = false;
     }
@@ -362,7 +340,6 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
   };
 
   const handleRefresh = () => {
-    console.log('Refresh button clicked - forcing summary regeneration');
     generateSummary();
   };
 
@@ -371,12 +348,10 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
   };
 
   const handleContextSelected = (contextData) => {
-    console.log('Context selected:', contextData);
     generateSummary(contextData);
   };
 
   const handleCollectMore = (result) => {
-    console.log('Message collection completed:', result);
     // Refresh data to show new messages
     if (onRefreshData) {
       onRefreshData();
@@ -391,9 +366,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       await clearChatSummaryCache(chatData);
       setSummary(null);
       setError(null);
-      console.log('Chat cache cleared successfully');
     } catch (error) {
-      console.error('Error clearing cache:', error);
       setError(t('cacheClearError'));
     } finally {
       setIsClearingCache(false);
@@ -406,9 +379,7 @@ export const Summary = ({ chatData, settings, onRefreshData }) => {
       await clearAllSummaryCache();
       setSummary(null);
       setError(null);
-      console.log('All cache cleared successfully');
     } catch (error) {
-      console.error('Error clearing all cache:', error);
       setError(t('cacheClearError'));
     } finally {
       setIsClearingCache(false);

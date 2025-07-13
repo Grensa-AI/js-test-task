@@ -404,33 +404,21 @@ export const ContextSelector = ({
   };
 
   const handleCollectMore = async () => {
-    console.log('🎯 handleCollectMore called');
-    console.log('🎯 window.collectMoreMessages exists:', !!window.collectMoreMessages);
-    console.log('🎯 window.collectMoreMessages type:', typeof window.collectMoreMessages);
-    
     if (window.collectMoreMessages) {
-      console.log('🎯 Starting message collection...');
       setCollectionProgress({ isCollecting: true, progress: { current: 0, total: -1 } });
       
       try {
-        console.log('🎯 Calling window.collectMoreMessages(callback)');
         const result = await window.collectMoreMessages((progress) => {
-          console.log('🎯 Progress callback:', progress);
           setCollectionProgress({ isCollecting: true, progress });
         });
-        
-        console.log('Collection result:', result);
         
         if (onCollectMore) {
           onCollectMore(result);
         }
       } catch (error) {
-        console.error('Error collecting messages:', error);
       } finally {
         setCollectionProgress(null);
       }
-    } else {
-      console.error('🎯 window.collectMoreMessages is not available!');
     }
   };
 

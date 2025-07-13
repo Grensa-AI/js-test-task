@@ -30,7 +30,6 @@ export const loadSettings = async () => {
     
     return DEFAULT_SETTINGS;
   } catch (error) {
-    console.error('Error loading settings:', error);
     return DEFAULT_SETTINGS;
   }
 };
@@ -49,53 +48,9 @@ export const saveSettings = async (settings) => {
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settingsToSave));
     }
     
-    console.log('Settings saved successfully');
+
     return true;
   } catch (error) {
-    console.error('Error saving settings:', error);
     throw error;
   }
-};
-
-export const clearSettings = async () => {
-  try {
-    // Try to clear from Chrome storage
-    if (chrome && chrome.storage && chrome.storage.sync) {
-      await chrome.storage.sync.remove(STORAGE_KEYS.SETTINGS);
-    } else {
-      // Fallback to localStorage for development
-      localStorage.removeItem(STORAGE_KEYS.SETTINGS);
-    }
-    
-    console.log('Settings cleared successfully');
-    return true;
-  } catch (error) {
-    console.error('Error clearing settings:', error);
-    throw error;
-  }
-};
-
-// Listen for storage changes
-export const onSettingsChange = (callback) => {
-  try {
-    if (chrome && chrome.storage && chrome.storage.onChanged) {
-      const listener = (changes, namespace) => {
-        if (namespace === 'sync' && changes[STORAGE_KEYS.SETTINGS]) {
-          const newSettings = changes[STORAGE_KEYS.SETTINGS].newValue;
-          callback(newSettings || DEFAULT_SETTINGS);
-        }
-      };
-      
-      chrome.storage.onChanged.addListener(listener);
-      
-      // Return cleanup function
-      return () => {
-        chrome.storage.onChanged.removeListener(listener);
-      };
-    }
-  } catch (error) {
-    console.error('Error setting up storage listener:', error);
-  }
-  
-  return () => {}; // No-op cleanup for fallback
 }; 

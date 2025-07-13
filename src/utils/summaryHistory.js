@@ -1,20 +1,19 @@
-// Summary history utility for tracking summaries with context
-// This stores a chronological history of summaries with their context data
+
 
 const HISTORY_KEYS = {
   SUMMARY_HISTORY: 'telegram_extension_summary_history',
   HISTORY_METADATA: 'telegram_extension_history_metadata'
 };
 
-// Maximum number of history entries to keep
+
 const MAX_HISTORY_ENTRIES = 100;
 
-// Generate a unique ID for a history entry
+
 const generateHistoryId = () => {
   return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// Load summary history from storage
+
 export const loadSummaryHistory = async () => {
   try {
     // Try Chrome storage first
@@ -32,12 +31,11 @@ export const loadSummaryHistory = async () => {
     
     return { history, metadata };
   } catch (error) {
-    console.error('Error loading summary history:', error);
     return { history: [], metadata: {} };
   }
 };
 
-// Save summary history to storage
+
 export const saveSummaryHistory = async (history, metadata) => {
   try {
     // Try Chrome storage first
@@ -52,14 +50,13 @@ export const saveSummaryHistory = async (history, metadata) => {
       localStorage.setItem(HISTORY_KEYS.HISTORY_METADATA, JSON.stringify(metadata));
     }
     
-    console.log('Summary history saved successfully');
+
   } catch (error) {
-    console.error('Error saving summary history:', error);
     throw error;
   }
 };
 
-// Add a new summary to history
+
 export const addSummaryToHistory = async (chatData, settings, summaryResult) => {
   try {
     const { history, metadata } = await loadSummaryHistory();
@@ -67,7 +64,7 @@ export const addSummaryToHistory = async (chatData, settings, summaryResult) => 
     const historyId = generateHistoryId();
     const timestamp = new Date().toISOString();
     
-    // Create context data
+
     const contextData = {
       chatTitle: chatData.chatTitle,
       chatId: chatData.chatId || chatData.chatTitle,
@@ -86,7 +83,7 @@ export const addSummaryToHistory = async (chatData, settings, summaryResult) => 
       contentHash: generateContentHash(chatData.messages)
     };
     
-    // Create history entry
+
     const historyEntry = {
       id: historyId,
       timestamp: timestamp,
@@ -100,10 +97,10 @@ export const addSummaryToHistory = async (chatData, settings, summaryResult) => 
       cached: summaryResult.cached || false
     };
     
-    // Add to history (newest first)
+
     history.unshift(historyEntry);
     
-    // Update metadata
+
     metadata[historyId] = {
       chatTitle: chatData.chatTitle,
       chatId: chatData.chatId || chatData.chatTitle,
@@ -113,17 +110,17 @@ export const addSummaryToHistory = async (chatData, settings, summaryResult) => 
       model: contextData.settings.model
     };
     
-    // Clean up old entries (keep only MAX_HISTORY_ENTRIES)
+
     if (history.length > MAX_HISTORY_ENTRIES) {
       const entriesToRemove = history.splice(MAX_HISTORY_ENTRIES);
       entriesToRemove.forEach(entry => {
         delete metadata[entry.id];
       });
-      console.log(`Cleaned up ${entriesToRemove.length} old history entries`);
+
     }
     
     await saveSummaryHistory(history, metadata);
-    console.log('Summary added to history:', historyId);
+
     
     // Dispatch custom event to notify components
     if (typeof window !== 'undefined') {
@@ -134,33 +131,32 @@ export const addSummaryToHistory = async (chatData, settings, summaryResult) => 
     
     return historyId;
   } catch (error) {
-    console.error('Error adding summary to history:', error);
     throw error;
   }
 };
 
-// Get summary history with optional filters
+
 export const getSummaryHistory = async (filters = {}) => {
   try {
     const { history } = await loadSummaryHistory();
     
     let filteredHistory = [...history];
     
-    // Filter by chat
+
     if (filters.chatId) {
       filteredHistory = filteredHistory.filter(entry => 
         entry.chatId === filters.chatId
       );
     }
     
-    // Filter by provider
+
     if (filters.provider) {
       filteredHistory = filteredHistory.filter(entry => 
         entry.provider === filters.provider
       );
     }
     
-    // Filter by date range
+
     if (filters.fromDate) {
       filteredHistory = filteredHistory.filter(entry => 
         new Date(entry.timestamp) >= new Date(filters.fromDate)
@@ -173,48 +169,35 @@ export const getSummaryHistory = async (filters = {}) => {
       );
     }
     
-    // Limit results
+
     if (filters.limit) {
       filteredHistory = filteredHistory.slice(0, filters.limit);
     }
     
     return filteredHistory;
   } catch (error) {
-    console.error('Error getting summary history:', error);
     return [];
   }
 };
 
-// Get history entry by ID
-export const getHistoryEntry = async (historyId) => {
-  try {
-    const { history } = await loadSummaryHistory();
-    return history.find(entry => entry.id === historyId) || null;
-  } catch (error) {
-    console.error('Error getting history entry:', error);
-    return null;
-  }
-};
 
-// Delete history entry
 export const deleteHistoryEntry = async (historyId) => {
   try {
     const { history, metadata } = await loadSummaryHistory();
     
     const entryIndex = history.findIndex(entry => entry.id === historyId);
     if (entryIndex === -1) {
-      console.log('History entry not found:', historyId);
       return false;
     }
     
-    // Remove from history
+
     history.splice(entryIndex, 1);
     
-    // Remove from metadata
+
     delete metadata[historyId];
     
     await saveSummaryHistory(history, metadata);
-    console.log('History entry deleted:', historyId);
+
     
     // Dispatch custom event to notify components
     if (typeof window !== 'undefined') {
@@ -225,16 +208,15 @@ export const deleteHistoryEntry = async (historyId) => {
     
     return true;
   } catch (error) {
-    console.error('Error deleting history entry:', error);
     throw error;
   }
 };
 
-// Clear all history
+
 export const clearAllHistory = async () => {
   try {
     await saveSummaryHistory([], {});
-    console.log('All history cleared');
+
     
     // Dispatch custom event to notify components
     if (typeof window !== 'undefined') {
@@ -243,7 +225,6 @@ export const clearAllHistory = async () => {
       }));
     }
   } catch (error) {
-    console.error('Error clearing all history:', error);
     throw error;
   }
 };
@@ -287,7 +268,6 @@ export const getHistoryStats = async () => {
     
     return stats;
   } catch (error) {
-    console.error('Error getting history stats:', error);
     return {
       totalEntries: 0,
       uniqueChats: 0,

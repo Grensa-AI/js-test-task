@@ -362,7 +362,6 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
       setApiKey(settings.apiKey || '');
       setProvider(settings.provider || 'openai');
       setDebugMode(settings.debugMode || false);
-      console.log('Settings loaded:', settings);
     }
   }, [settings]);
 
@@ -378,7 +377,6 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
       const stats = await getCacheStats();
       setCacheStats(stats);
     } catch (error) {
-      console.error('Error loading cache stats:', error);
     }
   };
 
@@ -506,7 +504,6 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
               type="checkbox"
               checked={debugMode}
               onChange={(e) => {
-                console.log('Debug mode changed:', e.target.checked);
                 setDebugMode(e.target.checked);
               }}
             />

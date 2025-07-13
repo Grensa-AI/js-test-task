@@ -333,7 +333,6 @@ export const History = ({ isOpen, onClose }) => {
   // Listen for history updates via custom events
   useEffect(() => {
     const handleHistoryUpdate = async (event) => {
-      console.log('History update event received:', event.detail);
       if (isOpen) {
         setRefreshing(true);
         try {
@@ -361,14 +360,12 @@ export const History = ({ isOpen, onClose }) => {
         if (currentHistory.length > 0) {
           const latestTimestamp = new Date(currentHistory[0].timestamp).getTime();
           if (latestTimestamp > lastUpdateTime) {
-            console.log('New history entries detected via polling, refreshing...');
             await loadHistory();
             await loadStats();
             setLastUpdateTime(Date.now());
           }
         }
       } catch (error) {
-        console.error('Error checking for history updates:', error);
       }
     }, 5000); // Check every 5 seconds (less frequent since we have events)
 
@@ -389,7 +386,6 @@ export const History = ({ isOpen, onClose }) => {
       const historyData = await getSummaryHistory(filters);
       setHistory(historyData);
     } catch (error) {
-      console.error('Error loading history:', error);
     } finally {
       setLoading(false);
     }
@@ -400,7 +396,6 @@ export const History = ({ isOpen, onClose }) => {
       const statsData = await getHistoryStats();
       setStats(statsData);
     } catch (error) {
-      console.error('Error loading stats:', error);
     }
   };
 
@@ -412,7 +407,6 @@ export const History = ({ isOpen, onClose }) => {
       await loadHistory();
       await loadStats();
     } catch (error) {
-      console.error('Error deleting entry:', error);
     }
   };
 
@@ -424,7 +418,6 @@ export const History = ({ isOpen, onClose }) => {
       await loadHistory();
       await loadStats();
     } catch (error) {
-      console.error('Error clearing history:', error);
     }
   };
 

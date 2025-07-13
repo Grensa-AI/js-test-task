@@ -40,7 +40,6 @@ function getChatId() {
 
 // Enhanced function to collect messages by scrolling with progress tracking
 async function collectMoreMessages(maxBoundOrCallback = null, progressCallback = null) {
-  console.log('🚀 collectMoreMessages called - will scroll until reaching top of chat');
   
   // Handle backward compatibility - if first param is a function, it's the callback
   let actualCallback = null;
@@ -51,14 +50,13 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
   }
   
   if (isCollectingMessages) {
-    console.log('Already collecting messages, skipping...');
     return { success: false, reason: 'already_collecting' };
   }
   
   isCollectingMessages = true;
   collectionProgress = { current: 0, total: -1 }; // -1 indicates unknown total
   
-  console.log('Starting enhanced message collection by scrolling...');
+
   
   try {
     const possibleSelectors = [
@@ -73,20 +71,10 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
     for (let selector of possibleSelectors) {
       scrollableContainer = document.querySelector(selector);
       if (scrollableContainer) {
-        console.log('Found scrollable container using selector:', selector);
-        console.log('Container properties:', {
-          scrollTop: scrollableContainer.scrollTop,
-          scrollHeight: scrollableContainer.scrollHeight,
-          clientHeight: scrollableContainer.clientHeight,
-          className: scrollableContainer.className
-        });
-        
         // Verify this is actually a chat messages container (should have height > 0)
         if (scrollableContainer.scrollHeight > 0 && scrollableContainer.clientHeight > 0) {
-          console.log('✅ Valid chat container found');
           break;
         } else {
-          console.log('❌ Container has no height, trying next selector');
           scrollableContainer = null;
         }
       }
@@ -94,12 +82,10 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
     
     // Fallback: look for any scrollable container that contains chat bubbles
     if (!scrollableContainer) {
-      console.log('Primary selectors failed, looking for container with chat bubbles...');
       const allScrollable = document.querySelectorAll('.scrollable.scrollable-y');
       for (let container of allScrollable) {
         const hasBubbles = container.querySelector('.bubble, .message');
         if (hasBubbles && container.scrollHeight > 0 && container.clientHeight > 0) {
-          console.log('✅ Found scrollable container with chat bubbles:', container.className);
           scrollableContainer = container;
           break;
         }
@@ -107,7 +93,6 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
     }
     
     if (!scrollableContainer) {
-      console.error('No suitable scrollable container found');
       return { success: false, reason: 'no_container' };
     }
     
@@ -117,9 +102,7 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
     const maxStuckAtTop = 3; // Only stop after being stuck at top for 3 attempts
     let noNewMessagesCount = 0; // Count attempts with no new messages
     const maxNoNewMessages = 8; // Stop if no new messages for 8 attempts (increased for safety)
-    const initialScrollTop = scrollableContainer.scrollTop; // Store initial position
-    
-    console.log('Initial scrollTop:', initialScrollTop);
+    const initialScrollTop = scrollableContainer.scrollTop;
     
     // Continue scrolling until we reach the top or stop finding new messages
     while (true) {
@@ -138,7 +121,7 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
       // Cache new messages  
       const newMessages = cacheMessages(currentMessages);
       
-      console.log(`Scroll attempt ${scrollAttempts}: Found ${newMessages} new messages (${currentMessageCount} total visible)`);
+
       
       if (actualCallback) {
         actualCallback({
@@ -152,28 +135,24 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
       // Track if we're not finding new messages
       if (newMessages === 0) {
         noNewMessagesCount++;
-        console.log(`No new messages found (${noNewMessagesCount}/${maxNoNewMessages})`);
       } else {
-        noNewMessagesCount = 0; // Reset counter when we find new messages
+        noNewMessagesCount = 0;
       }
       
       // Check if we've reached the absolute top and are stuck there
       const currentScrollTop = scrollableContainer.scrollTop;
       if (currentScrollTop === 0) {
         stuckAtTopCount++;
-        console.log(`At top of chat (${stuckAtTopCount}/${maxStuckAtTop})`);
         
         if (stuckAtTopCount >= maxStuckAtTop) {
-          console.log('Confirmed at top of chat after multiple attempts, stopping collection');
           break;
         }
       } else {
-        stuckAtTopCount = 0; // Reset if we're not at top
+        stuckAtTopCount = 0;
       }
       
       // Stop if we haven't found new messages for several attempts
       if (noNewMessagesCount >= maxNoNewMessages) {
-        console.log('No new messages found for several attempts, likely reached end of available messages');
         break;
       }
       
@@ -182,26 +161,18 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
       // Calculate scroll amount - more aggressive for faster scrolling
       const scrollAmount = scrollAttempts < 10 ? 8000 : 5000;
       
-      console.log('Scrolling up by:', scrollAmount);
       const lastScrollHeight = scrollableContainer.scrollHeight;
       scrollableContainer.scrollTop = Math.max(0, scrollableContainer.scrollTop - scrollAmount);
-      console.log('New scrollTop:', scrollableContainer.scrollTop);
       
       // Dispatch scroll event to trigger any listeners
       scrollableContainer.dispatchEvent(new Event('scroll', { bubbles: true }));
       
       // Dynamic delay: wait for new content to load by checking scrollHeight increase
       let waitAttempts = 0;
-      const maxWaitAttempts = 10; // Max 2 seconds (10 * 200ms)
+      const maxWaitAttempts = 10;
       while (scrollableContainer.scrollHeight <= lastScrollHeight && waitAttempts < maxWaitAttempts) {
         await new Promise(resolve => setTimeout(resolve, 200));
         waitAttempts++;
-      }
-      
-      if (waitAttempts >= maxWaitAttempts) {
-        console.log('Timeout waiting for new content, proceeding...');
-      } else {
-        console.log(`New content loaded after ${waitAttempts * 200}ms`);
       }
       
       // Additional minimal delay for rendering
@@ -209,14 +180,11 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
     }
     
     // Return to original position
-    console.log('Collection finished, returning to initial position:', initialScrollTop);
     scrollableContainer.scrollTop = initialScrollTop;
     
     // Get final message count
     const finalMessages = parseCurrentMessages();
     const finalMessageCount = finalMessages.length;
-    
-    console.log(`Message collection completed. Total attempts: ${scrollAttempts}, Messages collected: ${finalMessageCount}`);
     
     return {
       success: true,
@@ -226,7 +194,6 @@ async function collectMoreMessages(maxBoundOrCallback = null, progressCallback =
     };
     
   } catch (error) {
-    console.error('Error during message collection:', error);
     return { success: false, reason: 'error', error: error.message };
   } finally {
     isCollectingMessages = false;
@@ -316,7 +283,6 @@ function parseCurrentMessages() {
       messages.push(messageData);
       
     } catch (error) {
-      console.error(`Error parsing message ${index}:`, error);
     }
   });
   
@@ -342,7 +308,7 @@ function cacheMessages(messages) {
     }
   });
   
-  console.log(`Cached ${newMessagesCount} new messages for chat ${chatId}. Total cached: ${chatCache.size}`);
+
   
   // Trigger extension refresh if new messages were cached
   if (newMessagesCount > 0 && isExtensionVisible) {
@@ -429,21 +395,21 @@ function getMessageStats() {
 
 // Enhanced function to parse chat messages with caching
 function parseChat() {
-  console.log('Parsing chat messages with enhanced caching...');
+  
   
   const chatTitleElement = document.querySelector('.chat-info .user-title .peer-title') || 
                            document.querySelector('.topbar .chat-info .user-title .peer-title') ||
                            document.querySelector('.sidebar-header.topbar .chat-info .user-title .peer-title');
   
   const chatTitle = chatTitleElement ? chatTitleElement.textContent.trim() : 'Unknown Chat';
-  console.log('Chat title found:', chatTitle);
+  
   
   const chatId = getChatId();
-  console.log('Chat ID:', chatId);
+  
   
   // Check if chat changed
   if (chatId !== currentChatId) {
-    console.log(`Chat changed from ${currentChatId} to ${chatId}`);
+
     currentChatId = chatId;
   }
   
@@ -461,10 +427,10 @@ function parseChat() {
   
   const allMessages = [...allCachedMessages, ...visibleMessages];
   
-  console.log(`Total messages: ${allMessages.length} (${allCachedMessages.length} cached + ${visibleMessages.length} visible)`);
+  
   
   if (allMessages.length === 0) {
-    console.log('No messages found - chat might be empty or still loading');
+
     return {
       title: chatTitle,
       chatTitle: chatTitle,
@@ -512,7 +478,6 @@ function getCurrentChatTitle() {
     
     return 'Unknown Chat';
   } catch (error) {
-    console.error('Error getting chat title:', error);
     return 'Unknown Chat';
   }
 }
@@ -524,14 +489,14 @@ function waitForMessages(maxAttempts = 10, interval = 500) {
     
     const checkMessages = () => {
       attempts++;
-      console.log(`Checking for messages, attempt ${attempts}/${maxAttempts}`);
+
       
       const messagesContainer = document.querySelector('.bubbles-inner.has-rights') || 
                                document.querySelector('.bubbles-inner');
       
       if (messagesContainer) {
         const messageElements = messagesContainer.querySelectorAll('.bubble:not(.service)');
-        console.log(`Found ${messageElements.length} messages on attempt ${attempts}`);
+
         
         if (messageElements.length > 0 || attempts >= maxAttempts) {
           resolve(messageElements.length > 0);
@@ -542,7 +507,7 @@ function waitForMessages(maxAttempts = 10, interval = 500) {
       if (attempts < maxAttempts) {
         setTimeout(checkMessages, interval);
       } else {
-        console.log('Max attempts reached, proceeding anyway');
+  
         resolve(false);
       }
     };
@@ -553,21 +518,21 @@ function waitForMessages(maxAttempts = 10, interval = 500) {
 
 // Enhanced function to parse chat with retry logic
 async function parseChatsWithRetry() {
-  console.log('Starting enhanced chat parsing with retry logic...');
+
   
   // Wait for messages to load
   const messagesLoaded = await waitForMessages();
-  console.log('Messages loaded:', messagesLoaded);
+  
   
   // Parse the chat
   const chatData = parseChat();
   
   if (!chatData) {
-    console.log('No chat data found');
+    
     return null;
   }
   
-  console.log('Final chat data:', chatData);
+  
   return chatData;
 }
 
@@ -594,7 +559,7 @@ function detectChatChange(callback) {
   const urlObserver = new MutationObserver(() => {
     if (window.location.href !== currentUrl) {
       currentUrl = window.location.href;
-      console.log('URL changed, new chat detected');
+
       setTimeout(() => {
         updateMessageCount();
         callback('url_change');
@@ -606,7 +571,7 @@ function detectChatChange(callback) {
   const titleObserver = new MutationObserver(() => {
     const newChatTitle = getCurrentChatTitle();
     if (newChatTitle !== currentChatTitle && newChatTitle !== 'Unknown Chat') {
-      console.log(`Chat title changed from "${currentChatTitle}" to "${newChatTitle}"`);
+      
       currentChatTitle = newChatTitle;
       setTimeout(() => {
         updateMessageCount();
@@ -625,7 +590,7 @@ function detectChatChange(callback) {
                              document.querySelector('.bubbles-inner');
     
     if (messagesContainer) {
-      console.log('Setting up messages observer on container:', messagesContainer);
+
       
       chatObserver = new MutationObserver((mutations) => {
         let hasMessageChanges = false;
@@ -649,7 +614,7 @@ function detectChatChange(callback) {
             
             if (addedMessages.length > 0 || removedMessages.length > 0) {
               hasMessageChanges = true;
-              console.log(`Message changes detected: +${addedMessages.length} -${removedMessages.length}`);
+  
             }
           }
         });
@@ -657,7 +622,7 @@ function detectChatChange(callback) {
         if (hasMessageChanges) {
           const newMessageCount = messagesContainer.querySelectorAll('.bubble:not(.service)').length;
           if (newMessageCount !== currentMessageCount) {
-            console.log(`Message count changed from ${currentMessageCount} to ${newMessageCount}`);
+  
             currentMessageCount = newMessageCount;
             // Debounce the callback to avoid too many updates
             setTimeout(() => callback('messages_changed'), 0);
@@ -671,7 +636,7 @@ function detectChatChange(callback) {
         attributes: false
       });
     } else {
-      console.log('Messages container not found, will retry...');
+
       // Retry setting up the observer after a delay
       setTimeout(setupMessagesObserver, 1000);
     }
@@ -715,7 +680,7 @@ function detectChatChange(callback) {
     });
     
     if (shouldRecheckMessages) {
-      console.log('Chat structure changed, re-setting up messages observer');
+
       setTimeout(setupMessagesObserver, 500);
     }
   });
@@ -757,7 +722,7 @@ function injectExtension() {
   
   // Start chat change detection
   detectChatChange(async (changeType) => {
-    console.log('Chat change detected:', changeType);
+
     if (isExtensionVisible) {
       // Refresh the extension with new chat data
       await renderExtension();
@@ -768,12 +733,9 @@ function injectExtension() {
 async function renderExtension(forceRefresh = false) {
   if (extensionRoot) {
     try {
-      console.log('Rendering extension with enhanced parsing...', forceRefresh ? '(forced refresh)' : '');
       const chatData = await parseChatsWithRetry();
-      console.log('Chat data for extension:', chatData);
       extensionRoot.render(React.createElement(App, { chatData, onRefreshData: () => renderExtension(true) }));
     } catch (error) {
-      console.error('Error rendering extension:', error);
       // Fallback to basic parsing
       const chatData = parseChat();
       extensionRoot.render(React.createElement(App, { chatData, onRefreshData: () => renderExtension(true) }));
@@ -807,22 +769,7 @@ window.collectMoreMessages = collectMoreMessages;
 window.getCollectionProgress = getCollectionProgress;
 window.getMessageStats = getMessageStats;
 
-// Add a test function to verify function exposure
-window.testCollectMessages = function() {
-  console.log('🧪 Test function called - collectMoreMessages is available:', typeof window.collectMoreMessages);
-  if (typeof window.collectMoreMessages === 'function') {
-    console.log('🧪 Calling collectMoreMessages with 3 attempts for testing...');
-    return window.collectMoreMessages(3);
-  }
-};
 
-console.log('Telegram Web Extension content script loaded');
-console.log('🔧 Functions exposed to window:', {
-  collectMoreMessages: typeof window.collectMoreMessages,
-  getCollectionProgress: typeof window.getCollectionProgress,
-  getMessageStats: typeof window.getMessageStats,
-  testCollectMessages: typeof window.testCollectMessages
-});
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", injectExtension);

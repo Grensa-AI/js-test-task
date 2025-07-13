@@ -296,7 +296,6 @@ i18n
     }
   });
 
-console.log('i18n initialized, instance:', i18n);
-console.log('i18n.changeLanguage:', typeof i18n.changeLanguage);
+
 
 export default i18n; 
