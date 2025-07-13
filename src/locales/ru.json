@@ -15,5 +15,6 @@
   "save": "Сохранить",
   "edit": "Редактировать",
   "enter_api_key": "Введите API ключ",
-  "api_key_saved": "API ключ сохранён!"
+  "api_key_saved": "API ключ сохранён!",
+  "skeleton_summarizing": "Создаётся резюме..."
 }

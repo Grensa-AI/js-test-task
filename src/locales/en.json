@@ -15,5 +15,6 @@
   "save": "Save",
   "edit": "Edit",
   "enter_api_key": "Enter API key",
-  "api_key_saved": "API key saved!"
+  "api_key_saved": "API key saved!",
+  "skeleton_summarizing": "Summarizing..."
 }
