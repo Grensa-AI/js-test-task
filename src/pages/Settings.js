@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { CustomDropdown } from "../Components/Dropdown/Dropdown";
+import i18n from "i18next";
 
 const SettingsContainer = styled.div`
   display: flex;
@@ -75,7 +76,7 @@ function maskApiKey(key) {
 
 export const SettingsPage = () => {
   const [apiKey, setApiKey] = useState("");
-  const [language, setLanguage] = useState("EN");
+  const [language, setLanguage] = useState("en");
   const [status, setStatus] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -150,11 +151,12 @@ export const SettingsPage = () => {
             value={language}
             onChange={(val) => {
               setLanguage(val);
+              i18n.changeLanguage(val);
               chrome.storage.sync.set({ app_language: val });
             }}
             options={[
-              { label: "English", value: "EN" },
-              { label: "Russian", value: "RU" },
+              { label: "English", value: "en" },
+              { label: "Russian", value: "ru" },
             ]}
           />
         )}

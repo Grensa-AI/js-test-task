@@ -1,0 +1,71 @@
+import { useState } from "react";
+import styled from "styled-components";
+import { Title } from "@src/Components/Title/Title";
+import { SummaryPage } from "@src/pages/Summary";
+import { SettingsPage } from "@src/pages/Settings";
+import { useTranslation } from "react-i18next";
+
+export const AppContainer = styled.div`
+  width: 400px;
+  height: auto;
+  max-height: 500px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  overflow-y: auto;
+  color: #111827;
+`;
+
+const Nav = styled.div`
+  margin-bottom: 10px;
+  display: flex;
+  gap: 5px;
+
+  button {
+    background: none;
+    border: none;
+    color: #2563eb;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: 4px;
+    &.active {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    &:not(.active):hover {
+      background-color: #e5e7eb;
+    }
+  }
+`
+
+export const AppContent = () => {
+  const [screen, setScreen] = useState("summary");
+
+  const { t } = useTranslation();
+
+
+  return (
+    <AppContainer>
+      <Title />
+      <Nav>
+        <button className={screen === "summary" ? "active" : ""} onClick={() => setScreen("summary")}>
+          {t('summary')}
+        </button>
+        <button className={screen === "settings" ? "active" : ""} onClick={() => setScreen("settings")}>
+          {t('settings')}
+        </button>
+        <button className={screen === "history" ? "active" : ""} onClick={() => setScreen("history")}>
+          {t('history')}
+        </button>
+      </Nav>
+      {screen === "summary" && <SummaryPage />}
+      {screen === "settings" && <SettingsPage />}
+      {screen === "history" && <h1>History</h1>}
+    </AppContainer>
+  );
+};

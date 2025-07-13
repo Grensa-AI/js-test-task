@@ -1,0 +1,11 @@
+{
+  "summary": "Резюме",
+  "settings": "Настройки",
+  "history": "История",
+  "loadingTranslations": "Загрузка переводов...",
+  "lastUpdated": "Последнее обновление",
+  "retry": "Повторить",
+  "getNewSummary": "Получить новое резюме",
+  "errorOccurred": "Произошла ошибка",
+  "extractingMessages": "Извлечение сообщений..."
+}

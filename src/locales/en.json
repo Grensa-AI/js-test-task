@@ -1,0 +1,11 @@
+{
+  "summary": "Summary",
+  "settings": "Settings",
+  "history": "History",
+  "loadingTranslations": "Loading translations...",
+  "lastUpdated": "Last updated",
+  "retry": "Retry",
+  "getNewSummary": "Get new summary",
+  "errorOccurred": "An error occurred",
+  "extractingMessages": "Extracting messages..."
+}
