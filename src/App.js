@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Title } from "./Components/Title/Title";
 import { SummaryPage } from "./pages/SummaryPage";
 
 const AppContainer = styled.div`
@@ -19,6 +20,7 @@ const AppContainer = styled.div`
 export const App = () => {
   return (
     <AppContainer>
+      <Title />
       <SummaryPage />
     </AppContainer>
   );

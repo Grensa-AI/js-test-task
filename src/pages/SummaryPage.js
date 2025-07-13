@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Title } from "../Components/Title/Title";
 import { Summary } from "../Components/Summary/Summary";
 import useHashChange from "../hooks/useHashChange";
 import extractChat from "../utils/extractChat";
@@ -41,7 +40,6 @@ export const SummaryPage = () => {
   }, [chatInfo])
   return (
     <>
-      <Title />
       <Summary text={summary} loading={loading} error={error} />
     </>
   );
