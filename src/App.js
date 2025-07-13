@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { Title } from "@src/Components/Title/Title";
-import { SummaryPage } from "@src/pages/SummaryPage";
+import { SummaryPage } from "@src/pages/Summary";
 
 const AppContainer = styled.div`
   width: 400px;
