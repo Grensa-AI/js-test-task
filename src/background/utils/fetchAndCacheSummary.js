@@ -1,6 +1,6 @@
 import cache from '../cache';
 import { getApiKey } from "../storage";
-import { API, PROMPTS, MODEL } from "../contants";
+import { API, PROMPTS, MODEL } from "../constants";
 
 export async function fetchAndCacheSummary(chatContent) {
   const api_key = await getApiKey();
@@ -12,7 +12,7 @@ export async function fetchAndCacheSummary(chatContent) {
     },
     body: JSON.stringify({
       model: MODEL.NAME,
-      messages: [{ role: "user", content: PROMPTS.en + JSON.stringify(chatContent) }],
+      messages: [{ role: "system", content: PROMPTS.en }, { role: "user", content: "Chat messages: " + JSON.stringify(chatContent) }],
       temperature: MODEL.TEMPERATURE,
       max_tokens: MODEL.MAX_TOKENS,
     })
