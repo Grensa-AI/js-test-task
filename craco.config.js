@@ -2,6 +2,9 @@ const path = require("path");
 
 module.exports = {
   webpack: {
+    alias: {
+      "@src": path.resolve(__dirname, "src")
+    },
     configure: (webpackConfig) => {
       webpackConfig.entry = {
         main: path.resolve(__dirname, "src/index.js"),
