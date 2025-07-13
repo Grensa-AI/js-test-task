@@ -121,8 +121,8 @@ const resources = {
     translation: {
       // App component
       loading: "Загрузка...",
-      settings: "⚙️ Настройки",
-      history: "📚 История",
+      settings: "Настройки",
+      history: "История",
       messages: "сообщений",
       cached: "в кэше",
       words: "слов",

@@ -295,6 +295,58 @@ const CacheButton = styled(Button)`
   }
 `;
 
+const ToggleWrapper = styled.label`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #374151 !important;
+  font-size: 14px;
+  &:hover {
+    background-color: #f9fafb;
+  }
+`;
+
+const ToggleSwitch = styled.div`
+  position: relative;
+  width: 40px;
+  min-width: 40px;
+  height: 20px;
+`;
+
+const ToggleInput = styled.input`
+  opacity: 0;
+  position: absolute;
+  &:focus + span {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+`;
+
+const ToggleSlider = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: ${props => props.checked ? '#6366f1' : '#d1d5db'};
+  border-radius: 34px;
+  transition: background 0.3s;
+  &:before {
+    content: '';
+    position: absolute;
+    left: ${props => props.checked ? '20px' : '2px'};
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.3s;
+  }
+`;
+
 export const Settings = ({ isOpen, onClose, settings, onSave }) => {
   const { t } = useTranslation();
   const [apiKey, setApiKey] = useState('');
@@ -446,20 +498,21 @@ export const Settings = ({ isOpen, onClose, settings, onSave }) => {
       </FormGroup>
 
       <FormGroup>
-        <CheckboxContainer>
-          <Checkbox
-            id="debugMode"
-            type="checkbox"
-            checked={debugMode}
-            onChange={(e) => {
-              console.log('Debug mode changed:', e.target.checked);
-              setDebugMode(e.target.checked);
-            }}
-          />
-          <CheckboxLabel htmlFor="debugMode">
-            {t('debugModeLabel')}
-          </CheckboxLabel>
-        </CheckboxContainer>
+        <ToggleWrapper htmlFor="debugMode">
+          {t('debugModeLabel')}
+          <ToggleSwitch>
+            <ToggleInput
+              id="debugMode"
+              type="checkbox"
+              checked={debugMode}
+              onChange={(e) => {
+                console.log('Debug mode changed:', e.target.checked);
+                setDebugMode(e.target.checked);
+              }}
+            />
+            <ToggleSlider checked={debugMode} />
+          </ToggleSwitch>
+        </ToggleWrapper>
         <HelpText>
           {t('enableDebugMode')}
         </HelpText>

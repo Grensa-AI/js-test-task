@@ -341,7 +341,7 @@ export const App = ({ chatData, onRefreshData }) => {
           </MainButtonRow>
           <LanguageButtonRow>
             <ControlButton onClick={toggleLanguage}>
-              {(i18nInstance.language || 'en') === 'en' ? '🇷🇺 RU' : '🇺🇸 EN'}
+              {(i18nInstance.language || 'en') === 'en' ? '🇺🇸 EN' : '🇷🇺 RU'}
             </ControlButton>
           </LanguageButtonRow>
         </ButtonContainer>
