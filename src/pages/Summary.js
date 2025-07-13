@@ -87,8 +87,6 @@ export const SummaryPage = () => {
 
   return (
     <>
-      <Summary text={summary} loading={loading} error={error} />
-
       {summaryMetaData.fromCache && !error && (
         <CacheWarning>
           {t("cached_summary")}
@@ -108,6 +106,8 @@ export const SummaryPage = () => {
           {t("last_updated")}: {new Date(summaryMetaData.lastUpdated).toLocaleString()}
         </MetaNote>
       )}
+      <Summary text={summary} loading={loading} error={error} />
+
     </>
   );
 };
