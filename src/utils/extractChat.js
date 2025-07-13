@@ -6,6 +6,7 @@ export default async function extractChat(attempts = 0, maxAttempts = 10) {
     if (isTelegramLoaded()) {
       await delay(1000); // Wait for messages to load
       return {
+        chatId: getChatId(),
         members: extractChatMembers(),
         messages: extractMessages(),
         type: isGroupChat() ? "group" : "personal",
@@ -24,6 +25,9 @@ function isTelegramLoaded() {
   );
 }
 
+function getChatId() {
+  return document.querySelector("div.top > div.user-title > span.peer-title")?.dataset.peerId;
+}
 // Determine if the chat is a group chat
 function isGroupChat() {
   return !!document.querySelectorAll(
