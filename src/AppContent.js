@@ -98,16 +98,9 @@ export const AppContent = () => {
         >
           {t("settings")}
         </button>
-        <button
-          className={screen === "history" ? "active" : ""}
-          onClick={() => setScreen("history")}
-        >
-          {t("history")}
-        </button>
       </Nav>
       {screen === "summary" && <SummaryPage />}
       {screen === "settings" && <SettingsPage />}
-      {screen === "history" && <h1>History</h1>}
     </AppContainer>
   );
 };
