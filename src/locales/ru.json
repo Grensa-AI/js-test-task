@@ -2,10 +2,18 @@
   "summary": "Резюме",
   "settings": "Настройки",
   "history": "История",
-  "loadingTranslations": "Загрузка переводов...",
-  "lastUpdated": "Последнее обновление",
+  "last_updated": "Последнее обновление",
   "retry": "Повторить",
-  "getNewSummary": "Получить новое резюме",
-  "errorOccurred": "Произошла ошибка",
-  "extractingMessages": "Извлечение сообщений..."
+  "get_new_summary": "Получить новое резюме",
+  "error_occurred": "Произошла ошибка",
+  "extracting": "Извлечение сообщений...",
+  "cached_summary": "Это резюме из кэша. Оно может быть устаревшим",
+  "language": "Язык",
+  "openai_api_key": "Ключ OpenAI API",
+  "english": "Английский",
+  "russian": "Русский",
+  "save": "Сохранить",
+  "edit": "Редактировать",
+  "enter_api_key": "Введите API ключ",
+  "api_key_saved": "API ключ сохранён!"
 }

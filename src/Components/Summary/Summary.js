@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import styled, { keyframes } from "styled-components";
 
 const Container = styled.div`
@@ -52,19 +53,21 @@ const SkeletonContent = styled.div`
 `
 
 export const Summary = ({ text, loading, error }) => {
+
+  const { t } = useTranslation();
   return (
     <Container>
-      <SummaryTitle>Резюме</SummaryTitle>
+      <SummaryTitle>{t("summary")}</SummaryTitle>
 
       {loading ? (
         <SkeletonWrapper>
-          <SkeletonText>⏳ Summarizing...</SkeletonText>
+          <SkeletonText>⏳ {t("skeleton_summarizing")}</SkeletonText>
           <SkeletonContent />
         </SkeletonWrapper>
       ) : error ? (
         <ErrorText>❌ {error}</ErrorText>
       ) : (
-        <Text>{text || "Нет данных для отображения."}</Text>
+        <Text>{text || t("no_data")}</Text>
       )}
     </Container>
   );

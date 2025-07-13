@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Summary } from "@src/Components/Summary/Summary";
 import useHashChange from "@src/hooks/useHashChange";
 import extractChat from "@src/utils/extractChat";
+import { useTranslation } from "react-i18next";
 
 const CacheWarning = styled.div`
   font-size: 12px;
@@ -34,6 +35,7 @@ const MetaNote = styled.span`
 `;
 
 export const SummaryPage = () => {
+  const { t } = useTranslation();
   const [chatInfo, setChatInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
@@ -71,7 +73,7 @@ export const SummaryPage = () => {
 
   useEffect(() => {
     setLoading(false);
-    setSummary("Extracting messages...");
+    setSummary(t("extracting"));
     setError(null);
     extractChat().then((chatInfo) => setChatInfo(chatInfo));
   }, [hash]);
@@ -89,21 +91,21 @@ export const SummaryPage = () => {
 
       {summaryMetaData.fromCache && !error && (
         <CacheWarning>
-          This summary is from cache. It may be outdated.
+          {t("cached_summary")}
         </CacheWarning>
       )}
 
       {(showRetryButton || showRefreshButton) && (
         <div style={{ marginTop: "12px" }}>
           <RefreshButton onClick={() => fetchSummary(true)}>
-            {showRetryButton ? "Retry" : "Get new summary"}
+            {showRetryButton ? t("retry") : t("get_new_summary")}
           </RefreshButton>
         </div>
       )}
 
       {summaryMetaData.lastUpdated && !error && (
         <MetaNote>
-          Last updated: {new Date(summaryMetaData.lastUpdated).toLocaleString()}
+          {t("last_updated")}: {new Date(summaryMetaData.lastUpdated).toLocaleString()}
         </MetaNote>
       )}
     </>

@@ -2,10 +2,18 @@
   "summary": "Summary",
   "settings": "Settings",
   "history": "History",
-  "loadingTranslations": "Loading translations...",
-  "lastUpdated": "Last updated",
+  "last_updated": "Last updated",
   "retry": "Retry",
-  "getNewSummary": "Get new summary",
-  "errorOccurred": "An error occurred",
-  "extractingMessages": "Extracting messages..."
+  "get_new_summary": "Get new summary",
+  "error_occurred": "An error occurred",
+  "extracting": "Extracting messages...",
+  "cached_summary": "This summary is from cache. It may be outdated",
+  "language": "Language",
+  "openai_api_key": "OpenAI API Key",
+  "english": "English",
+  "russian": "Russian",
+  "save": "Save",
+  "edit": "Edit",
+  "enter_api_key": "Enter API key",
+  "api_key_saved": "API key saved!"
 }

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 const DropdownWrapper = styled.div`
@@ -41,10 +42,11 @@ const DropdownItem = styled.li`
 `;
 
 export const CustomDropdown = ({ options, value, onChange }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const selectedLabel = options.find(opt => opt.value === value)?.label || "Select";
+  const selectedLabel = options.find(opt => opt.value === value)?.label || t("select");
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 

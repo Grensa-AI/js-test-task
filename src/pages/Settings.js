@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { CustomDropdown } from "../Components/Dropdown/Dropdown";
 import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 
 const SettingsContainer = styled.div`
   display: flex;
@@ -75,6 +76,7 @@ function maskApiKey(key) {
 }
 
 export const SettingsPage = () => {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState("");
   const [language, setLanguage] = useState("en");
   const [status, setStatus] = useState("");
@@ -96,7 +98,7 @@ export const SettingsPage = () => {
 
   const handleSaveApiKey = () => {
     chrome.storage.sync.set({ openai_api_key: apiKey }, () => {
-      setStatus("API Key saved!");
+      setStatus(t("api_key_saved"));
       setIsEditing(false);
       setTimeout(() => setStatus(""), 2000);
     });
@@ -114,7 +116,7 @@ export const SettingsPage = () => {
   return (
     <SettingsContainer>
       <div>
-        <Label htmlFor="api-key">OpenAI API Key:</Label>
+        <Label htmlFor="api-key">{t("openai_api_key")}</Label>
         <InputWrapper>
           {loading ? (
             <>
@@ -128,14 +130,14 @@ export const SettingsPage = () => {
                 type="text"
                 value={apiKey}
                 onChange={handleApiKeyChange}
-                placeholder="Enter your API key"
+                placeholder={t("enter_api_key")}
               />
-              <SmallButton onClick={handleSaveApiKey}>Save</SmallButton>
+              <SmallButton onClick={handleSaveApiKey}>{t("save")}</SmallButton>
             </>
           ) : (
             <>
               <Input id="api-key" type="text" disabled={true} value={maskApiKey(apiKey)} />
-              <SmallButton onClick={handleEditClick}>Edit</SmallButton>
+              <SmallButton onClick={handleEditClick}>{t("edit")}</SmallButton>
             </>
           )}
         </InputWrapper>
@@ -143,7 +145,7 @@ export const SettingsPage = () => {
       </div>
 
       <div>
-        <Label htmlFor="language">Language:</Label>
+        <Label htmlFor="language">{t("language")}:</Label>
         {loading ? (
           <Skeleton />
         ) : (
@@ -155,8 +157,8 @@ export const SettingsPage = () => {
               chrome.storage.sync.set({ app_language: val });
             }}
             options={[
-              { label: "English", value: "en" },
-              { label: "Russian", value: "ru" },
+              { label: t("english"), value: "en" },
+              { label: t("russian"), value: "ru" },
             ]}
           />
         )}
